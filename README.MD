@@ -59,6 +59,10 @@ out the top of my mind, but please add if needed:
 
 ## Datasets
 
+## railway historical dataset
+
+https://data.gov.be/en/organisations/infrabel
+
 ### open-meteo
 
 https://archive-api.open-meteo.com/v1/archive
@@ -109,3 +113,13 @@ Your model target (busy/not busy) is binary, so even the rough proxy works well 
 
 For a binary "is it worth taking the car today" model, a single sensor with weather + weekday + holiday is genuinely enough to get a solid model.
 ```
+
+---
+
+## Project task division
+
+* assemble and analyse trafic-sensor dataset: Laure
+* assemble and analyse train-trajectory dataset : Jack
+* assemble and analyse wheather data : Maxime
+* set up example mockup projecft to have headstart, and subdevide into sections again: Marc
+* 
