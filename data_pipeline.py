@@ -93,6 +93,12 @@ STATION_MECHELEN = "MECHELEN"
 # convenience vs waiting on a platform).  Set to 0 for strict fastest-wins logic.
 CAR_PREF_BUFFER_MIN = 10
 
+# Relative weekday congestion multipliers, normalised so their mean == 1.0.
+# Applied on top of the Vlaams Verkeercentrum base time (which already averages
+# Mon–Fri school days).  Derived from WEEKDAY_CONGESTION above.
+_AVG_WD_FACTOR = sum(WEEKDAY_CONGESTION.values()) / len(WEEKDAY_CONGESTION)
+WEEKDAY_CONGESTION_REL = {k: round(v / _AVG_WD_FACTOR, 4) for k, v in WEEKDAY_CONGESTION.items()}
+
 # Only the columns we need from each (large) Infrabel monthly file.
 # Reading only these columns reduces memory use by ~70 %.
 _INFRABEL_COLS = [
@@ -174,7 +180,7 @@ def fetch_weather(
         ]),
     }
 
-    print(f"[weather] Fetching {start} → {end} from Open-Meteo …")
+    print(f"[weather] Fetching {start} to {end} from Open-Meteo ...")
     response = requests.get(url, params=params, timeout=120)
     response.raise_for_status()   # raises an error if the server returned 4xx/5xx
     raw_json = response.json()
@@ -326,7 +332,7 @@ def fetch_train_schedule(
         current -= timedelta(days=1)
     sample_dates = sorted(sample_dates)
     print(f"[train] Fetching connections for {len(sample_dates)} days: "
-          f"{sample_dates[0]} → {sample_dates[-1]}")
+          f"{sample_dates[0]} to {sample_dates[-1]}")
 
     # --- query iRail for each date --------------------------------------------
     all_rows = []
@@ -519,6 +525,129 @@ def car_travel_time_estimate(
     return round(float(np.clip(estimated, 35, 150)), 1)
 
 
+# =============================================================================
+# DATA SOURCE 5 — REAL CAR DATA  (Vlaams Verkeercentrum travel times)
+# =============================================================================
+
+def fetch_vc_travel_times(
+    raw_dir: Path       = None,
+    output_path: Path   = None,
+    force_refresh: bool = False,
+) -> pd.DataFrame:
+    """
+    Load and aggregate Vlaams Verkeercentrum (VC) travel time indicator data.
+
+    What is this data?
+      The Flemish Traffic Centre publishes average car travel times per 5-minute
+      slot for named road segments on the main Flemish motorway network.  The
+      data is downloaded as Excel files (reistijd_*.xlsx) from:
+        https://indicatoren.verkeerscentrum.be/
+
+    Route covered (Gent → Mechelen via Antwerpen):
+      1. A14 / E17  Gent → Antwerpen  (segments richting Antwerpen)
+      2. R1 buitenring  Antwerpen ring  (segments richting Ring 2)
+      3. A1  / E19  Antwerpen → Mechelen  (segments richting Brussel)
+
+    Aggregation:
+      For each (year, month) we sum all segments to get the total route travel
+      time for each 5-minute slot, then average across the commute window
+      06:00–09:55.  The result represents a realistic monthly average commute
+      time for the morning peak period.
+
+    Note: months 7 and 8 (July / August, school holidays) are absent from the
+    VC dataset because it only covers "school-day" traffic patterns.  Days in
+    those months fall back to the OSRM-based estimate in the pipeline.
+
+    Returns
+    -------
+    DataFrame with columns:  year, month, vc_car_base_min
+    """
+    if raw_dir is None:
+        raw_dir = RAW
+    if output_path is None:
+        output_path = PROC / "vc_travel_times.csv"
+
+    if not force_refresh and output_path.exists():
+        print(f"[car_vc] Loading VC travel times from cache: {output_path}")
+        return pd.read_csv(output_path)
+
+    files = sorted(raw_dir.glob("reistijd*.xlsx"))
+    if not files:
+        print("[car_vc] No Vlaams Verkeercentrum files found in data/raw/ — skipping.")
+        return pd.DataFrame()
+
+    dfs = []
+    for f in files:
+        try:
+            dfs.append(pd.read_excel(f, sheet_name="data"))
+        except Exception as exc:
+            print(f"[car_vc] Warning: could not read {f.name}: {exc}")
+
+    if not dfs:
+        return pd.DataFrame()
+
+    data = pd.concat(dfs, ignore_index=True)
+
+    # Extract hour from e.g. "07:30" → 7
+    data["tijdstip_hour"] = pd.to_numeric(
+        data["tijdstip"].str.extract(r"(\d{2})")[0], errors="coerce"
+    )
+
+    # Commute window: 06:00–09:55
+    data = data[data["tijdstip_hour"].isin([6, 7, 8, 9])]
+
+    # Sum all segments per time slot → total route time for that 5-min slot
+    totals = (
+        data.groupby(["jaar", "maand", "tijdstip"])["gem_reistijd_auto"]
+        .sum()
+        .reset_index()
+    )
+
+    # Average over all time slots in the commute window → monthly base time
+    monthly = (
+        totals.groupby(["jaar", "maand"])["gem_reistijd_auto"]
+        .mean()
+        .round(2)
+        .reset_index()
+        .rename(columns={"jaar": "year", "maand": "month", "gem_reistijd_auto": "vc_car_base_min"})
+    )
+
+    monthly.to_csv(output_path, index=False)
+    print(f"[car_vc] VC travel times saved: {len(monthly)} month-entries to {output_path}")
+    return monthly
+
+
+def car_vc_travel_time_estimate(
+    row: dict,
+    vc_base_min: float,
+) -> float:
+    """
+    Estimate car travel time (min) from the VC monthly base + weekday + weather.
+
+    The VC base already reflects real congestion averaged over Mon–Fri school
+    days, so we apply RELATIVE weekday multipliers (mean = 1.0) plus the same
+    weather factors used in the OSRM model.
+    """
+    wd_factor = WEEKDAY_CONGESTION_REL.get(row.get("weekday", "Wednesday"), 1.0)
+
+    rain  = row.get("rain_peak", 0) or 0
+    wind  = row.get("wind_peak", 0) or 0
+    tmin  = row.get("temp_min", 10) or 10
+    snow  = row.get("snow_total", 0) or 0
+
+    weather_factor = 1.0
+    if   rain >= 5.0:  weather_factor += 0.12
+    elif rain >= 2.0:  weather_factor += 0.07
+    elif rain >= 0.5:  weather_factor += 0.03
+    if snow >= 1.0:    weather_factor += 0.25
+    if   tmin <= -3.0: weather_factor += 0.15
+    elif tmin <=  0.0: weather_factor += 0.07
+    if   wind >= 60.0: weather_factor += 0.08
+    elif wind >= 45.0: weather_factor += 0.04
+
+    return round(float(np.clip(vc_base_min * wd_factor * weather_factor, 35, 150)), 1)
+
+
 def _hms(series: pd.Series) -> pd.Series:
     """Parse a HH:MM:SS string column to Timestamps (date part is ignored)."""
     return pd.to_datetime(series, format="%H:%M:%S", errors="coerce")
@@ -660,7 +789,7 @@ def _process_infrabel_month(
         daily.loc[daily[col] > 300,  col] = np.nan   # > 5 h is a data error
 
     daily.to_csv(month_cache, index=False)
-    print(f" → {len(daily)} days")
+    print(f" => {len(daily)} days")
     return daily
 
 
@@ -782,10 +911,11 @@ def build_combined_df(
 
     Target columns (what we want to predict)
     -----------------------------------------
-    car_est_min          : estimated car travel time in minutes
+    car_vc_est_min       : PRIMARY car estimate — VC measured base + weekday/weather
+    car_est_min          : HISTORY car estimate — OSRM free-flow × congestion model
     train_sched_min      : scheduled train journey time in minutes
     weather_risk         : integer risk score 0–9 (higher = worse conditions)
-    car_faster_than_train: 1 if car ≤ train + CAR_PREF_BUFFER_MIN, else 0
+    car_faster_than_train: 1 if car_vc_est_min ≤ train + CAR_PREF_BUFFER_MIN, else 0
 
     Parameters
     ----------
@@ -874,13 +1004,32 @@ def build_combined_df(
     numeric_cols = df.select_dtypes(include="number").columns
     df[numeric_cols] = df[numeric_cols].fillna(df[numeric_cols].median())
 
-    # ── Step 8: apply car travel time model ──────────────────────────────────
-    print("[pipeline] Estimating car travel times …")
+    # ── Step 8a: OSRM-based car estimate (kept for historical reference) ─────
+    print("[pipeline] Estimating car travel times (OSRM baseline) …")
 
     df["car_est_min"] = df.apply(
         lambda row: car_travel_time_estimate(row, free_flow_min),
         axis=1,
     )
+
+    # ── Step 8b: Vlaams Verkeercentrum car estimate (primary) ─────────────────
+    # Real measured travel times for the E17 → R1 → E19 via-Antwerpen route.
+    # Falls back to the OSRM estimate for months not in VC data (Jul / Aug).
+    df_vc = fetch_vc_travel_times(force_refresh=force_refresh)
+    if not df_vc.empty:
+        vc_lookup = df_vc.set_index(["year", "month"])["vc_car_base_min"].to_dict()
+        print(f"[pipeline] VC travel times loaded for {len(vc_lookup)} month-entries.")
+    else:
+        vc_lookup = {}
+        print("[pipeline] No VC travel times found — car_vc_est_min falls back to OSRM.")
+
+    def _vc_row(row):
+        base = vc_lookup.get((row["year"], row["month"]))
+        if base is None:
+            return row["car_est_min"]   # OSRM fallback for Jul/Aug and any gaps
+        return car_vc_travel_time_estimate(row, base)
+
+    df["car_vc_est_min"] = df.apply(_vc_row, axis=1)
 
     # ── Step 9: iRail fallback — scheduled journey time ──────────────────────
     # This gives us one representative scheduled journey time to use as a
@@ -961,12 +1110,11 @@ def build_combined_df(
         + (df["humidity_max"] >= 97  ).astype(int) * 1
     )
 
-    # Binary target: prefer car when its estimated time is within CAR_PREF_BUFFER_MIN
-    # minutes of the actual train journey time.  The buffer accounts for door-to-door
-    # convenience (no station wait, direct departure) that makes a slightly slower
-    # car trip still preferable in practice.  Adjust CAR_PREF_BUFFER_MIN to taste.
+    # Binary target: prefer car when the VC-based estimate (primary) is within
+    # CAR_PREF_BUFFER_MIN minutes of the actual train journey time.
+    # car_est_min (OSRM) is retained for historical comparison only.
     df["car_faster_than_train"] = (
-        df["car_est_min"] <= df["train_actual_journey_min"] + CAR_PREF_BUFFER_MIN
+        df["car_vc_est_min"] <= df["train_actual_journey_min"] + CAR_PREF_BUFFER_MIN
     ).astype(int)
 
     # ── Step 11: enforce column order and save ────────────────────────────────
@@ -982,7 +1130,8 @@ def build_combined_df(
         # ── derived ────────────────────────────────────────────────────────────
         "weather_risk",
         # ── travel time targets (real Infrabel data where available) ──────────
-        "car_est_min",
+        "car_vc_est_min",             # primary: VC measured + weekday/weather adjustment
+        "car_est_min",                # history: OSRM free-flow × congestion model
         "train_planned_journey_min",  # scheduled time (real timetable)
         "train_actual_journey_min",   # actual time incl. delays
         "train_delay_arr_median_s",   # median arrival delay in seconds
@@ -996,7 +1145,7 @@ def build_combined_df(
     df.to_csv(output_path, index=False)
     print(f"\n[pipeline] Combined dataset saved to {output_path}")
     print(f"[pipeline] Shape: {df.shape}  "
-          f"({df['date'].min().date()} → {df['date'].max().date()})")
+          f"({df['date'].min().date()} to {df['date'].max().date()})")
 
     return df
 
@@ -1013,8 +1162,8 @@ if __name__ == "__main__":
     print("DATASET SUMMARY")
     print("=" * 60)
     print(f"Working days          : {len(df):,}")
-    print(f"Date range            : {df['date'].min().date()} → {df['date'].max().date()}")
-    print(f"\nWeather (median workday, 06–09h window):")
+    print(f"Date range            : {df['date'].min().date()} to {df['date'].max().date()}")
+    print(f"\nWeather (median workday, 06-09h window):")
     print(f"  Rain peak           : {df['rain_peak'].median():.2f} mm")
     print(f"  Wind peak           : {df['wind_peak'].median():.1f} km/h")
     print(f"  Min temperature     : {df['temp_min'].median():.1f} °C")
@@ -1022,8 +1171,9 @@ if __name__ == "__main__":
     print(f"  Days with frost     : {(df['temp_min'] <= 0).mean():.1%}")
     print(f"  Days with snow      : {(df['snow_total'] > 0).mean():.1%}")
     print(f"\nTravel times:")
-    print(f"  Car   (median est.) : {df['car_est_min'].median():.0f} min")
-    print(f"  Car   (90th pct)    : {df['car_est_min'].quantile(0.9):.0f} min")
+    print(f"  Car VC (median)     : {df['car_vc_est_min'].median():.0f} min  (primary)")
+    print(f"  Car VC (90th pct)   : {df['car_vc_est_min'].quantile(0.9):.0f} min")
+    print(f"  Car OSRM (median)   : {df['car_est_min'].median():.0f} min  (historical)")
     print(f"  Train (scheduled)   : {df['train_sched_min'].iloc[0]:.0f} min")
     print(f"  Car faster than train: {df['car_faster_than_train'].mean():.1%} of days")
     print(f"\nWeather risk distribution:")
