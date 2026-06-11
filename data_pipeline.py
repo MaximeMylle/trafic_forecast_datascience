@@ -47,6 +47,7 @@ for _pkg in _REQUIRED:
 
 # ─── Third-party imports ─────────────────────────────────────────────────────
 import io
+from concurrent.futures import ThreadPoolExecutor
 import requests
 import pandas as pd
 import numpy as np
@@ -86,6 +87,11 @@ TRAIN_DATASETS_INDEX = Path("data/newdata/newtraindatasets.csv")
 # Exact station names as they appear in the Infrabel punctuality files
 STATION_GENT     = "GENT-SINT-PIETERS"
 STATION_MECHELEN = "MECHELEN"
+
+# Commute preference buffer: if the car estimate is within this many minutes of
+# the actual train journey time, still prefer the car (accounts for door-to-door
+# convenience vs waiting on a platform).  Set to 0 for strict fastest-wins logic.
+CAR_PREF_BUFFER_MIN = 10
 
 # Only the columns we need from each (large) Infrabel monthly file.
 # Reading only these columns reduces memory use by ~70 %.
@@ -513,15 +519,162 @@ def car_travel_time_estimate(
     return round(float(np.clip(estimated, 35, 150)), 1)
 
 
+def _hms(series: pd.Series) -> pd.Series:
+    """Parse a HH:MM:SS string column to Timestamps (date part is ignored)."""
+    return pd.to_datetime(series, format="%H:%M:%S", errors="coerce")
+
+
+def _process_infrabel_month(
+    month_str: str,
+    url: str,
+    cache_dir: Path,
+    force_refresh: bool,
+) -> "pd.DataFrame | None":
+    """Download, filter, and aggregate one Infrabel monthly file.
+
+    Returns a daily-level DataFrame for the Gent→Mechelen commute window,
+    or None when the month produced no usable data.
+    The processed result is cached in cache_dir/{month_str}_gent_mech.csv so
+    subsequent runs skip the download entirely.
+    """
+    month_cache = cache_dir / f"{month_str}_gent_mech.csv"
+
+    if not force_refresh and month_cache.exists():
+        try:
+            return pd.read_csv(month_cache, parse_dates=["date"])
+        except Exception:
+            pass  # corrupt cache → re-download below
+
+    # ── Download ─────────────────────────────────────────────────────────────
+    try:
+        print(f"  [{month_str}] Downloading …", end="", flush=True)
+        resp = requests.get(url, timeout=180)
+        resp.raise_for_status()
+        print(f" {len(resp.content) // 1024:,} KB", end="")
+    except Exception as exc:
+        print(f" FAILED: {exc}")
+        return None
+
+    # ── Parse: read only the columns we need to save memory ──────────────────
+    try:
+        df_month = pd.read_csv(
+            io.BytesIO(resp.content),
+            usecols=_INFRABEL_COLS,
+            low_memory=False,
+        )
+    except ValueError:
+        # Some older files may lack a column; fall back to reading all then selecting
+        try:
+            df_month = pd.read_csv(io.BytesIO(resp.content), low_memory=False)
+            available = [c for c in _INFRABEL_COLS if c in df_month.columns]
+            df_month  = df_month[available]
+        except Exception as exc2:
+            print(f" parse error: {exc2}")
+            return None
+
+    # ── Date parsing (format: 04JAN2021) ─────────────────────────────────────
+    df_month["date"] = pd.to_datetime(
+        df_month["DATDEP"], format="%d%b%Y", errors="coerce"
+    )
+    df_month = df_month.dropna(subset=["date"])
+
+    # ── Filter Gent departures (06:00–08:59) ─────────────────────────────────
+    gent = df_month[df_month["PTCAR_LG_NM_NL"] == STATION_GENT].copy()
+    gent["_dep_hour"] = (
+        pd.to_datetime(gent["PLANNED_TIME_DEP"], format="%H:%M:%S", errors="coerce")
+        .dt.hour
+    )
+    gent = gent[gent["_dep_hour"].isin([6, 7, 8])].copy()
+
+    if gent.empty:
+        print(" (no commute-window trains found)")
+        return None
+
+    gent = gent[[
+        "date", "TRAIN_NO",
+        "PLANNED_TIME_DEP", "REAL_TIME_DEP", "DELAY_DEP",
+    ]].rename(columns={
+        "PLANNED_TIME_DEP": "planned_dep",
+        "REAL_TIME_DEP":    "real_dep",
+        "DELAY_DEP":        "delay_dep_s",
+    })
+
+    # ── Filter Mechelen arrivals ──────────────────────────────────────────────
+    mech = df_month[df_month["PTCAR_LG_NM_NL"] == STATION_MECHELEN][[
+        "date", "TRAIN_NO",
+        "PLANNED_TIME_ARR", "REAL_TIME_ARR", "DELAY_ARR",
+    ]].rename(columns={
+        "PLANNED_TIME_ARR": "planned_arr",
+        "REAL_TIME_ARR":    "real_arr",
+        "DELAY_ARR":        "delay_arr_s",
+    }).copy()
+
+    # ── Join: keep Gent rows even if the train never reached Mechelen ─────────
+    joined = gent.merge(mech, on=["date", "TRAIN_NO"], how="left")
+
+    # Exclude trains whose route does not include Mechelen at all — they also
+    # have NaN planned_arr after the left join but are not cancellations.
+    joined = joined[joined["planned_arr"].notna()].copy()
+
+    if joined.empty:
+        print(" (no Gent→Mechelen scheduled trains found)")
+        return None
+
+    # ── Journey times ─────────────────────────────────────────────────────────
+    pd_dep = _hms(joined["planned_dep"])
+    pd_arr = _hms(joined["planned_arr"])
+    rd_dep = _hms(joined["real_dep"])
+    rd_arr = _hms(joined["real_arr"])
+
+    joined["planned_journey_min"] = (pd_arr - pd_dep).dt.total_seconds() / 60
+    joined["actual_journey_min"]  = (rd_arr - rd_dep).dt.total_seconds() / 60
+
+    # Cancelled = scheduled to arrive at Mechelen but never did.
+    # Covers (a) cancelled at Gent (real_dep NaN) and
+    #        (b) cancelled en route (real_dep filled, real_arr NaN).
+    joined["is_cancelled"] = rd_arr.isna().astype(int)
+
+    # On-time = arrived ≤ 5 min late AND not cancelled.
+    # fillna(9999) treats a missing delay as very late, not punctual.
+    joined["is_on_time"] = (
+        (joined["delay_arr_s"].fillna(9999) <= 300)
+        & (joined["is_cancelled"] == 0)
+    ).astype(int)
+
+    # ── Daily aggregation ─────────────────────────────────────────────────────
+    daily = (
+        joined.groupby("date")
+        .agg(
+            n_trains                  = ("TRAIN_NO",            "count"),
+            train_planned_journey_min = ("planned_journey_min", "median"),
+            train_actual_journey_min  = ("actual_journey_min",  "median"),
+            train_delay_arr_median_s  = ("delay_arr_s",         "median"),
+            train_on_time_pct         = ("is_on_time",          "mean"),
+            train_cancelled_pct       = ("is_cancelled",        "mean"),
+        )
+        .reset_index()
+    )
+
+    for col in ["train_planned_journey_min", "train_actual_journey_min"]:
+        daily.loc[daily[col] <= 0,   col] = np.nan   # can't be 0 or negative
+        daily.loc[daily[col] > 300,  col] = np.nan   # > 5 h is a data error
+
+    daily.to_csv(month_cache, index=False)
+    print(f" → {len(daily)} days")
+    return daily
+
+
 # =============================================================================
 # DATA SOURCE 3b — REAL TRAIN DATA  (Infrabel Punctuality History)
 # =============================================================================
 
 def fetch_infrabel_punctuality(
-    index_path: Path  = TRAIN_DATASETS_INDEX,
-    start_year: int   = 2021,
-    cache_dir: Path   = None,
-    output_path: Path = None,
+    index_path: Path    = TRAIN_DATASETS_INDEX,
+    start_year: int     = 2021,
+    cache_dir: Path     = None,
+    output_path: Path   = None,
+    force_refresh: bool = False,
+    n_workers: int      = 4,
 ) -> pd.DataFrame:
     """
     Download and process Infrabel punctuality data for the
@@ -562,7 +715,7 @@ def fetch_infrabel_punctuality(
     cache_dir.mkdir(parents=True, exist_ok=True)
 
     # If already fully processed, just load it
-    if output_path.exists():
+    if not force_refresh and output_path.exists():
         print(f"[train_real] Loading Infrabel data from cache: {output_path}")
         df = pd.read_csv(output_path, parse_dates=["date"])
         print(f"[train_real] {len(df):,} days with real train data loaded.")
@@ -580,147 +733,15 @@ def fetch_infrabel_punctuality(
     index_df = index_df[index_df["year"] >= start_year].sort_values("month").reset_index(drop=True)
     print(f"[train_real] Processing {len(index_df)} monthly Infrabel files ({start_year}+) …")
 
-    all_daily = []
+    rows = [{"month": r["month"], "url": r["url"]} for _, r in index_df.iterrows()]
 
-    for _, row in index_df.iterrows():
-        month_str = row["month"]   # e.g. "2021-01"
-        url       = row["url"]
+    def _process(row):
+        return _process_infrabel_month(row["month"], row["url"], cache_dir, force_refresh)
 
-        # Each processed month is cached as a small CSV (only the filtered rows).
-        # The large raw file is NOT saved to disk — it is streamed and discarded.
-        month_cache = cache_dir / f"{month_str}_gent_mech.csv"
+    with ThreadPoolExecutor(max_workers=n_workers) as pool:
+        results = list(pool.map(_process, rows))
 
-        if month_cache.exists():
-            # Fast path: already processed this month
-            try:
-                daily = pd.read_csv(month_cache, parse_dates=["date"])
-                all_daily.append(daily)
-                continue
-            except Exception:
-                pass   # corrupt cache → re-download below
-
-        # ── Download the monthly CSV into memory ─────────────────────────────
-        try:
-            print(f"  [{month_str}] Downloading …", end="", flush=True)
-            resp = requests.get(url, timeout=180)
-            resp.raise_for_status()
-            print(f" {len(resp.content) // 1024:,} KB", end="")
-        except Exception as exc:
-            print(f" FAILED: {exc}")
-            continue
-
-        # ── Parse: read only the columns we need to save memory ───────────────
-        try:
-            df_month = pd.read_csv(
-                io.BytesIO(resp.content),
-                usecols=_INFRABEL_COLS,
-                low_memory=False,
-            )
-        except ValueError:
-            # Some older files may lack a column; fall back to reading all and selecting
-            try:
-                df_month = pd.read_csv(io.BytesIO(resp.content), low_memory=False)
-                available = [c for c in _INFRABEL_COLS if c in df_month.columns]
-                df_month  = df_month[available]
-            except Exception as exc2:
-                print(f" parse error: {exc2}")
-                continue
-
-        # ── Parse DATDEP (format: 04JAN2021) → proper date ────────────────────
-        # The date format is DDMMMYYYY in uppercase English abbreviations.
-        df_month["date"] = pd.to_datetime(
-            df_month["DATDEP"], format="%d%b%Y", errors="coerce"
-        )
-        df_month = df_month.dropna(subset=["date"])
-
-        # ── Extract and filter Gent departures ────────────────────────────────
-        gent = df_month[df_month["PTCAR_LG_NM_NL"] == STATION_GENT].copy()
-
-        # Parse the planned departure time so we can filter by hour
-        gent["_dep_hour"] = (
-            pd.to_datetime(gent["PLANNED_TIME_DEP"], format="%H:%M:%S", errors="coerce")
-            .dt.hour
-        )
-        # Keep only trains departing Gent between 06:00 and 08:59 (→ arrive ~09:00)
-        gent = gent[gent["_dep_hour"].isin([6, 7, 8])].copy()
-
-        if gent.empty:
-            print(" (no commute-window trains found)")
-            continue
-
-        # Keep only the columns needed for the join
-        gent = gent[[
-            "date", "TRAIN_NO",
-            "PLANNED_TIME_DEP", "REAL_TIME_DEP", "DELAY_DEP",
-        ]].rename(columns={
-            "PLANNED_TIME_DEP": "planned_dep",
-            "REAL_TIME_DEP":    "real_dep",
-            "DELAY_DEP":        "delay_dep_s",
-        })
-
-        # ── Extract Mechelen arrivals ─────────────────────────────────────────
-        mech = df_month[df_month["PTCAR_LG_NM_NL"] == STATION_MECHELEN][[
-            "date", "TRAIN_NO",
-            "PLANNED_TIME_ARR", "REAL_TIME_ARR", "DELAY_ARR",
-        ]].rename(columns={
-            "PLANNED_TIME_ARR": "planned_arr",
-            "REAL_TIME_ARR":    "real_arr",
-            "DELAY_ARR":        "delay_arr_s",
-        }).copy()
-
-        # ── Join: match each Gent departure with its Mechelen arrival ─────────
-        # A left join keeps Gent rows even when the train was cancelled before
-        # reaching Mechelen (real_arr will be NaN in those rows).
-        joined = gent.merge(mech, on=["date", "TRAIN_NO"], how="left")
-
-        # ── Compute journey times ─────────────────────────────────────────────
-        def _hms(series):
-            """Parse HH:MM:SS string column to a datetime (date part ignored)."""
-            return pd.to_datetime(series, format="%H:%M:%S", errors="coerce")
-
-        pd_dep = _hms(joined["planned_dep"])
-        pd_arr = _hms(joined["planned_arr"])
-        rd_dep = _hms(joined["real_dep"])
-        rd_arr = _hms(joined["real_arr"])
-
-        # Journey time = arrival time minus departure time, in minutes.
-        # We compute both the scheduled and the actual journey time.
-        joined["planned_journey_min"] = (pd_arr - pd_dep).dt.total_seconds() / 60
-        joined["actual_journey_min"]  = (rd_arr - rd_dep).dt.total_seconds() / 60
-
-        # A cancelled train has no real departure time recorded
-        joined["is_cancelled"] = rd_dep.isna().astype(int)
-
-        # "On time" means the train arrived at Mechelen with a delay of ≤ 5 min
-        # (300 seconds).  Cancelled trains are never on time.
-        joined["is_on_time"] = (
-            (joined["delay_arr_s"].fillna(0) <= 300)
-            & (joined["is_cancelled"] == 0)
-        ).astype(int)
-
-        # ── Aggregate to daily stats ──────────────────────────────────────────
-        daily = (
-            joined.groupby("date")
-            .agg(
-                n_trains                  = ("TRAIN_NO",            "count"),
-                train_planned_journey_min = ("planned_journey_min", "median"),
-                train_actual_journey_min  = ("actual_journey_min",  "median"),
-                train_delay_arr_median_s  = ("delay_arr_s",         "median"),
-                train_on_time_pct         = ("is_on_time",          "mean"),
-                train_cancelled_pct       = ("is_cancelled",        "mean"),
-            )
-            .reset_index()
-        )
-
-        # Remove physically impossible journey times (data errors)
-        for col in ["train_planned_journey_min", "train_actual_journey_min"]:
-            daily.loc[daily[col] <= 0,   col] = np.nan   # can't be 0 or negative
-            daily.loc[daily[col] > 300,  col] = np.nan   # > 5 h is a data error
-
-        # Cache this month's processed result
-        daily.to_csv(month_cache, index=False)
-        all_daily.append(daily)
-        print(f" → {len(daily)} days")
+    all_daily = [r for r in results if r is not None]
 
     if not all_daily:
         print("[train_real] No data was collected — returning empty DataFrame.")
@@ -764,7 +785,7 @@ def build_combined_df(
     car_est_min          : estimated car travel time in minutes
     train_sched_min      : scheduled train journey time in minutes
     weather_risk         : integer risk score 0–9 (higher = worse conditions)
-    car_faster_than_train: 1 if car is estimated faster, 0 otherwise
+    car_faster_than_train: 1 if car ≤ train + CAR_PREF_BUFFER_MIN, else 0
 
     Parameters
     ----------
@@ -878,7 +899,7 @@ def build_combined_df(
     # This replaces the constant iRail estimate with per-day actual data.
     # Each row gives us the real journey time, delay, and on-time rate.
     print("[pipeline] Loading real Infrabel train data …")
-    df_infrabel = fetch_infrabel_punctuality()
+    df_infrabel = fetch_infrabel_punctuality(force_refresh=force_refresh)
 
     if not df_infrabel.empty:
         # Merge real train stats onto the workday DataFrame.
@@ -940,10 +961,12 @@ def build_combined_df(
         + (df["humidity_max"] >= 97  ).astype(int) * 1
     )
 
-    # Binary target: is the car faster than the actual train journey on this day?
-    # Now uses real Infrabel journey times where available instead of a constant.
+    # Binary target: prefer car when its estimated time is within CAR_PREF_BUFFER_MIN
+    # minutes of the actual train journey time.  The buffer accounts for door-to-door
+    # convenience (no station wait, direct departure) that makes a slightly slower
+    # car trip still preferable in practice.  Adjust CAR_PREF_BUFFER_MIN to taste.
     df["car_faster_than_train"] = (
-        df["car_est_min"] <= df["train_actual_journey_min"]
+        df["car_est_min"] <= df["train_actual_journey_min"] + CAR_PREF_BUFFER_MIN
     ).astype(int)
 
     # ── Step 11: enforce column order and save ────────────────────────────────

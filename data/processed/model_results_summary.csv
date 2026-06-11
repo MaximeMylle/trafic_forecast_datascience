@@ -1,4 +1,4 @@
 model,target,MAE_min,RMSE_min,R2,cv_MAE_mean,cv_MAE_std
-Linear Regression,car_est_min,0.898,1.27,0.9309,1.005,0.065
-Random Forest Regressor,car_est_min,0.105,0.554,0.9869,0.268,0.085
-Random Forest Classifier,car_faster_than_train,,,,0.9891,
+Linear Regression,car_est_min,0.886,1.262,0.9317,1.004,0.068
+Random Forest Regressor,car_est_min,0.105,0.555,0.9868,0.269,0.085
+Random Forest Classifier,car_faster_than_train,,,,0.8291,
