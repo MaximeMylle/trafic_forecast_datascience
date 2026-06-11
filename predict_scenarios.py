@@ -2,7 +2,7 @@
 predict_scenarios.py
 ====================
 Uses the trained model from model_training.py to make predictions for
-20 hand-crafted scenarios.  Each scenario is a realistic situation that
+50 hand-crafted scenarios.  Each scenario is a realistic situation that
 a commuter might face on the Gent → Mechelen route.
 
 Scenarios are designed to cover a wide range of conditions:
@@ -43,6 +43,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
+import matplotlib.lines as mlines
 
 # scikit-learn — we retrain here so this file is self-contained
 from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
@@ -50,7 +51,7 @@ from sklearn.model_selection import train_test_split
 
 # ─── Our own pipeline ────────────────────────────────────────────────────────
 # This import fetches (or loads from cache) the full historical dataset
-from data_pipeline import build_combined_df, WEEKDAY_CONGESTION
+from data_pipeline import build_combined_df, WEEKDAY_CONGESTION, CAR_PREF_BUFFER_MIN
 
 
 # =============================================================================
@@ -499,10 +500,371 @@ SCENARIOS = [
         "humidity_max": 80.0, "snow_total": 0.0,
         "is_school_holiday": False,
     },
+    # ── 21. Krokusvakantie maandag ────────────────────────────────────────────
+    {
+        "name":        "21. Krokusvakantie maandag",
+        "description": "Krokusvakantie. Scholen dicht — wegen opvallend leeg.",
+        "weekday_num": 0,    # Monday
+        "month":       2,
+        "rain_total":  0.2, "rain_peak": 0.1,
+        "wind_peak":   14.0, "wind_mean": 8.0,
+        "temp_min":    3.0,  "temp_mean": 7.0,
+        "humidity_max": 72.0, "snow_total": 0.0,
+        "is_school_holiday": True,
+    },
+    # ── 22. Natte januaridinsdag ──────────────────────────────────────────────
+    {
+        "name":        "22. Natte januaridinsdag",
+        "description": "Matige regen + spits op dinsdag. Vertraging bijna zeker.",
+        "weekday_num": 1,    # Tuesday
+        "month":       1,
+        "rain_total":  4.5, "rain_peak": 2.8,
+        "wind_peak":   30.0, "wind_mean": 18.0,
+        "temp_min":    4.0,  "temp_mean": 7.0,
+        "humidity_max": 93.0, "snow_total": 0.0,
+        "is_school_holiday": False,
+    },
+    # ── 23. Warme junidinsdag ─────────────────────────────────────────────────
+    {
+        "name":        "23. Warme junidinsdag",
+        "description": "Begin juni, warm en droog. Geen vakantie, normale spits.",
+        "weekday_num": 1,    # Tuesday
+        "month":       6,
+        "rain_total":  0.0, "rain_peak": 0.0,
+        "wind_peak":   16.0, "wind_mean": 9.0,
+        "temp_min":    14.0, "temp_mean": 22.0,
+        "humidity_max": 58.0, "snow_total": 0.0,
+        "is_school_holiday": False,
+    },
+    # ── 24. Stormachtige novemberwoensdag ─────────────────────────────────────
+    {
+        "name":        "24. Stormachtige novemberwoensdag",
+        "description": "Trekgolf boven België. Windstoten 65 km/h, matige regen.",
+        "weekday_num": 2,    # Wednesday
+        "month":       11,
+        "rain_total":  6.0, "rain_peak": 3.8,
+        "wind_peak":   68.0, "wind_mean": 42.0,
+        "temp_min":    7.0,  "temp_mean": 10.0,
+        "humidity_max": 96.0, "snow_total": 0.0,
+        "is_school_holiday": False,
+    },
+    # ── 25. Koude decemberdinsdag ─────────────────────────────────────────────
+    {
+        "name":        "25. Koude decemberdinsdag",
+        "description": "Koud en helder. Vorst 's ochtends, spitspiek dinsdag.",
+        "weekday_num": 1,    # Tuesday
+        "month":       12,
+        "rain_total":  0.0, "rain_peak": 0.0,
+        "wind_peak":   12.0, "wind_mean": 7.0,
+        "temp_min":    -2.0, "temp_mean": 1.0,
+        "humidity_max": 88.0, "snow_total": 0.0,
+        "is_school_holiday": False,
+    },
+    # ── 26. Herfstvakantie donderdag ──────────────────────────────────────────
+    {
+        "name":        "26. Herfstvakantie donderdag",
+        "description": "Oktober herfstvakantie. Mild, lichte bries. Wegen rustig.",
+        "weekday_num": 3,    # Thursday
+        "month":       10,
+        "rain_total":  0.8, "rain_peak": 0.4,
+        "wind_peak":   18.0, "wind_mean": 10.0,
+        "temp_min":    8.0,  "temp_mean": 13.0,
+        "humidity_max": 76.0, "snow_total": 0.0,
+        "is_school_holiday": True,
+    },
+    # ── 27. Aprilbui woensdag ─────────────────────────────────────────────────
+    {
+        "name":        "27. Aprilbui woensdag",
+        "description": "Typische aprilbui met matige neerslag. Normale files.",
+        "weekday_num": 2,    # Wednesday
+        "month":       4,
+        "rain_total":  3.5, "rain_peak": 2.2,
+        "wind_peak":   26.0, "wind_mean": 15.0,
+        "temp_min":    8.0,  "temp_mean": 12.0,
+        "humidity_max": 91.0, "snow_total": 0.0,
+        "is_school_holiday": False,
+    },
+    # ── 28. Vakantievrijdag augustus ──────────────────────────────────────────
+    {
+        "name":        "28. Vakantievrijdag augustus",
+        "description": "Augustus, warm, droog. Schoolvakantie — weinig verkeer.",
+        "weekday_num": 4,    # Friday
+        "month":       8,
+        "rain_total":  0.0, "rain_peak": 0.0,
+        "wind_peak":   13.0, "wind_mean": 7.0,
+        "temp_min":    19.0, "temp_mean": 26.0,
+        "humidity_max": 55.0, "snow_total": 0.0,
+        "is_school_holiday": True,
+    },
+    # ── 29. Mistige septemberdinsdag ──────────────────────────────────────────
+    {
+        "name":        "29. Mistige septemberdinsdag",
+        "description": "Ochtendmist, hoge vochtigheid. Zicht beperkt + spitspiek.",
+        "weekday_num": 1,    # Tuesday
+        "month":       9,
+        "rain_total":  0.3, "rain_peak": 0.1,
+        "wind_peak":   8.0,  "wind_mean": 3.0,
+        "temp_min":    8.0,  "temp_mean": 14.0,
+        "humidity_max": 99.0, "snow_total": 0.0,
+        "is_school_holiday": False,
+    },
+    # ── 30. Koude regenachtige maandag maart ──────────────────────────────────
+    {
+        "name":        "30. Koude regenachtige maandag",
+        "description": "Maandag in maart. Regen + koude + maandagspits.",
+        "weekday_num": 0,    # Monday
+        "month":       3,
+        "rain_total":  5.0, "rain_peak": 3.0,
+        "wind_peak":   35.0, "wind_mean": 22.0,
+        "temp_min":    3.0,  "temp_mean": 6.0,
+        "humidity_max": 94.0, "snow_total": 0.0,
+        "is_school_holiday": False,
+    },
+    # ── 31. Lichte sneeuw vrijdag ─────────────────────────────────────────────
+    {
+        "name":        "31. Lichte sneeuw vrijdag",
+        "description": "Vluchtige sneeuwbui. 1-2 cm verwacht. Vrijdag = lichtste spits.",
+        "weekday_num": 4,    # Friday
+        "month":       3,
+        "rain_total":  1.0, "rain_peak": 0.5,
+        "wind_peak":   18.0, "wind_mean": 10.0,
+        "temp_min":    -1.0, "temp_mean": 0.5,
+        "humidity_max": 95.0, "snow_total": 1.5,
+        "is_school_holiday": False,
+    },
+    # ── 32. Terug na kerstvakantie — donderdag ────────────────────────────────
+    {
+        "name":        "32. Terug na kerstvakantie",
+        "description": "Eerste donderdag na Nieuwjaar. Iedereen terug op kantoor.",
+        "weekday_num": 3,    # Thursday
+        "month":       1,
+        "rain_total":  2.5, "rain_peak": 1.5,
+        "wind_peak":   32.0, "wind_mean": 20.0,
+        "temp_min":    2.0,  "temp_mean": 5.0,
+        "humidity_max": 90.0, "snow_total": 0.0,
+        "is_school_holiday": False,
+    },
+    # ── 33. Tropische vakantiedinsdag ─────────────────────────────────────────
+    {
+        "name":        "33. Tropische vakantiedinsdag",
+        "description": "Augustus, 33°C, schoolvakantie. Wegen rustig ondanks warmte.",
+        "weekday_num": 1,    # Tuesday
+        "month":       8,
+        "rain_total":  0.0, "rain_peak": 0.0,
+        "wind_peak":   14.0, "wind_mean": 8.0,
+        "temp_min":    22.0, "temp_mean": 31.0,
+        "humidity_max": 48.0, "snow_total": 0.0,
+        "is_school_holiday": True,
+    },
+    # ── 34. Winderige novembermaandag ─────────────────────────────────────────
+    {
+        "name":        "34. Winderige novembermaandag",
+        "description": "Flinke wind maar nauwelijks regen. Maandagspits actief.",
+        "weekday_num": 0,    # Monday
+        "month":       11,
+        "rain_total":  0.5, "rain_peak": 0.3,
+        "wind_peak":   52.0, "wind_mean": 33.0,
+        "temp_min":    7.0,  "temp_mean": 11.0,
+        "humidity_max": 83.0, "snow_total": 0.0,
+        "is_school_holiday": False,
+    },
+    # ── 35. Kerstvakantie vrijdag ─────────────────────────────────────────────
+    {
+        "name":        "35. Kerstvakantie vrijdag",
+        "description": "Kerstvakantie. Scholen dicht, wegen rustig, mild weer.",
+        "weekday_num": 4,    # Friday
+        "month":       12,
+        "rain_total":  1.0, "rain_peak": 0.6,
+        "wind_peak":   18.0, "wind_mean": 11.0,
+        "temp_min":    4.0,  "temp_mean": 7.0,
+        "humidity_max": 85.0, "snow_total": 0.0,
+        "is_school_holiday": True,
+    },
+    # ── 36. Mist + lichte regen dinsdag ──────────────────────────────────────
+    {
+        "name":        "36. Mist + lichte regen dinsdag",
+        "description": "Laaghangende bewolking, mist, lichte drizzle. Spitspiek.",
+        "weekday_num": 1,    # Tuesday
+        "month":       3,
+        "rain_total":  1.5, "rain_peak": 0.9,
+        "wind_peak":   14.0, "wind_mean": 7.0,
+        "temp_min":    4.0,  "temp_mean": 7.0,
+        "humidity_max": 99.0, "snow_total": 0.0,
+        "is_school_holiday": False,
+    },
+    # ── 37. Koude zonnige woensdag februari ───────────────────────────────────
+    {
+        "name":        "37. Koude zonnige woensdag",
+        "description": "Helder maar koud. Wegen droog, mogelijk rijp 's ochtends.",
+        "weekday_num": 2,    # Wednesday
+        "month":       2,
+        "rain_total":  0.0, "rain_peak": 0.0,
+        "wind_peak":   10.0, "wind_mean": 5.0,
+        "temp_min":    -3.0, "temp_mean": 2.0,
+        "humidity_max": 82.0, "snow_total": 0.0,
+        "is_school_holiday": False,
+    },
+    # ── 38. Warmste lentedag donderdag mei ────────────────────────────────────
+    {
+        "name":        "38. Warmste lentedag donderdag",
+        "description": "Mooiste dag van het jaar tot nu. Warm, zon, spitspiek do.",
+        "weekday_num": 3,    # Thursday
+        "month":       5,
+        "rain_total":  0.0, "rain_peak": 0.0,
+        "wind_peak":   16.0, "wind_mean": 9.0,
+        "temp_min":    12.0, "temp_mean": 22.0,
+        "humidity_max": 60.0, "snow_total": 0.0,
+        "is_school_holiday": False,
+    },
+    # ── 39. Zware herfstbui maandag oktober ───────────────────────────────────
+    {
+        "name":        "39. Zware herfstbui maandag",
+        "description": "Oktober. Zware regenbuien tijdens de maandagspits.",
+        "weekday_num": 0,    # Monday
+        "month":       10,
+        "rain_total":  9.0, "rain_peak": 5.5,
+        "wind_peak":   38.0, "wind_mean": 24.0,
+        "temp_min":    8.0,  "temp_mean": 12.0,
+        "humidity_max": 97.0, "snow_total": 0.0,
+        "is_school_holiday": False,
+    },
+    # ── 40. Zomerse vakantiewoensdag juli ─────────────────────────────────────
+    {
+        "name":        "40. Zomerse vakantiewoensdag",
+        "description": "Juli, schoolvakantie. Warm, bewolkt maar droog.",
+        "weekday_num": 2,    # Wednesday
+        "month":       7,
+        "rain_total":  0.0, "rain_peak": 0.0,
+        "wind_peak":   17.0, "wind_mean": 10.0,
+        "temp_min":    16.0, "temp_mean": 24.0,
+        "humidity_max": 62.0, "snow_total": 0.0,
+        "is_school_holiday": True,
+    },
+    # ── 41. Koude februarimaandag ─────────────────────────────────────────────
+    {
+        "name":        "41. Koude februarimaandag",
+        "description": "Grijze februaridag. Koud, bewolkt, geen neerslag. Maandagspits.",
+        "weekday_num": 0,    # Monday
+        "month":       2,
+        "rain_total":  0.3, "rain_peak": 0.1,
+        "wind_peak":   20.0, "wind_mean": 12.0,
+        "temp_min":    0.0,  "temp_mean": 3.0,
+        "humidity_max": 87.0, "snow_total": 0.0,
+        "is_school_holiday": False,
+    },
+    # ── 42. Late lentestorm donderdag ─────────────────────────────────────────
+    {
+        "name":        "42. Late lentestorm donderdag",
+        "description": "Juni onweersbui. Zware buien en wind. Spits + storm.",
+        "weekday_num": 3,    # Thursday
+        "month":       6,
+        "rain_total":  11.0, "rain_peak": 6.5,
+        "wind_peak":   62.0, "wind_mean": 35.0,
+        "temp_min":    14.0, "temp_mean": 18.0,
+        "humidity_max": 97.0, "snow_total": 0.0,
+        "is_school_holiday": False,
+    },
+    # ── 43. Pinkstermaandag (feestdag) ────────────────────────────────────────
+    {
+        "name":        "43. Pinkstermaandag (feestdag)",
+        "description": "Pinksteren — Belgische feestdag. Geen woon-werkverkeer.",
+        "weekday_num": 0,    # Monday
+        "month":       6,
+        "rain_total":  1.5, "rain_peak": 0.8,
+        "wind_peak":   22.0, "wind_mean": 13.0,
+        "temp_min":    13.0, "temp_mean": 19.0,
+        "humidity_max": 75.0, "snow_total": 0.0,
+        "is_school_holiday": False,
+        "is_public_holiday": True,
+    },
+    # ── 44. Koude regenachtige vrijdag januari ────────────────────────────────
+    {
+        "name":        "44. Koude regenachtige vrijdag",
+        "description": "Januari, regen en koude. Vrijdagochtend natter dan verwacht.",
+        "weekday_num": 4,    # Friday
+        "month":       1,
+        "rain_total":  3.0, "rain_peak": 1.8,
+        "wind_peak":   28.0, "wind_mean": 16.0,
+        "temp_min":    2.0,  "temp_mean": 5.0,
+        "humidity_max": 92.0, "snow_total": 0.0,
+        "is_school_holiday": False,
+    },
+    # ── 45. Perfecte septemberwoensdag ───────────────────────────────────────
+    {
+        "name":        "45. Perfecte septemberwoensdag",
+        "description": "Ideale herfstdag. Aangenaam, droog, lichte wind.",
+        "weekday_num": 2,    # Wednesday
+        "month":       9,
+        "rain_total":  0.0, "rain_peak": 0.0,
+        "wind_peak":   14.0, "wind_mean": 8.0,
+        "temp_min":    11.0, "temp_mean": 19.0,
+        "humidity_max": 63.0, "snow_total": 0.0,
+        "is_school_holiday": False,
+    },
+    # ── 46. Orkaan vrijdag maart ──────────────────────────────────────────────
+    {
+        "name":        "46. Orkaan vrijdag maart",
+        "description": "Orkaanachtige wind uit het zuidwesten. Windstoten 90 km/h.",
+        "weekday_num": 4,    # Friday
+        "month":       3,
+        "rain_total":  7.0, "rain_peak": 4.0,
+        "wind_peak":   90.0, "wind_mean": 60.0,
+        "temp_min":    9.0,  "temp_mean": 12.0,
+        "humidity_max": 97.0, "snow_total": 0.0,
+        "is_school_holiday": False,
+    },
+    # ── 47. Grijs nat donderdag november ─────────────────────────────────────
+    {
+        "name":        "47. Grijs nat donderdag november",
+        "description": "Lichte regen, koud, grijs. Spitspiek donderdag.",
+        "weekday_num": 3,    # Thursday
+        "month":       11,
+        "rain_total":  2.0, "rain_peak": 1.3,
+        "wind_peak":   25.0, "wind_mean": 14.0,
+        "temp_min":    4.0,  "temp_mean": 7.0,
+        "humidity_max": 93.0, "snow_total": 0.0,
+        "is_school_holiday": False,
+    },
+    # ── 48. Kerstvakantie maandag december ────────────────────────────────────
+    {
+        "name":        "48. Kerstvakantie maandag",
+        "description": "Kerstvakantie. Scholen dicht, wegen rustig, mild decemberweer.",
+        "weekday_num": 0,    # Monday
+        "month":       12,
+        "rain_total":  2.0, "rain_peak": 1.2,
+        "wind_peak":   22.0, "wind_mean": 13.0,
+        "temp_min":    5.0,  "temp_mean": 8.0,
+        "humidity_max": 88.0, "snow_total": 0.0,
+        "is_school_holiday": True,
+    },
+    # ── 49. Winterstorm dinsdag januari ───────────────────────────────────────
+    {
+        "name":        "49. Winterstorm dinsdag",
+        "description": "Hevige winterstorm. Zware regen + storm + spitspiek.",
+        "weekday_num": 1,    # Tuesday
+        "month":       1,
+        "rain_total":  12.0, "rain_peak": 7.5,
+        "wind_peak":   78.0, "wind_mean": 50.0,
+        "temp_min":    5.0,  "temp_mean": 8.0,
+        "humidity_max": 98.0, "snow_total": 0.0,
+        "is_school_holiday": False,
+    },
+    # ── 50. Nazomer vrijdag oktober ───────────────────────────────────────────
+    {
+        "name":        "50. Nazomer vrijdag oktober",
+        "description": "Indische zomer. Warm, droog, lichtste spits van de week.",
+        "weekday_num": 4,    # Friday
+        "month":       10,
+        "rain_total":  0.0, "rain_peak": 0.0,
+        "wind_peak":   11.0, "wind_mean": 6.0,
+        "temp_min":    14.0, "temp_mean": 22.0,
+        "humidity_max": 60.0, "snow_total": 0.0,
+        "is_school_holiday": False,
+    },
 ]
 
-# Validate: we must have at least 15
-assert len(SCENARIOS) >= 15, "Define at least 15 scenarios"
+# Validate: we must have at least 50
+assert len(SCENARIOS) >= 50, "Define at least 50 scenarios"
 
 
 # =============================================================================
@@ -550,74 +912,117 @@ for r in results:
 # 6. VISUALISE RESULTS
 # =============================================================================
 
-# We build two side-by-side charts:
-#   Left  : estimated car travel time per scenario (bar chart, coloured by risk)
-#   Right : count of recommended modes across all scenarios (pie chart)
+# Decision threshold: car is preferred when its time ≤ train + buffer.
+THRESHOLD_MIN = TRAIN_SCHED_MIN + CAR_PREF_BUFFER_MIN
 
-RISK_COLORS = {"groen": "#4caf50", "oranje": "#ff9800", "rood": "#f44336"}
-
-# Filter out the public holiday scenario (no car prediction)
-df_plot = df_results[df_results["car_pred_min"].notna()].copy()
-
-fig, axes = plt.subplots(1, 2, figsize=(16, 7))
-plt.subplots_adjust(wspace=0.35)
-
-# ── LEFT: car travel time per scenario ───────────────────────────────────────
-bar_colors = [RISK_COLORS[r] for r in df_plot["risk_label"]]
-bars = axes[0].barh(
-    df_plot["name"], df_plot["car_pred_min"],
-    color=bar_colors, edgecolor="white", height=0.7
-)
-
-# Add the scheduled train time as a vertical reference line
-axes[0].axvline(
-    TRAIN_SCHED_MIN, color="steelblue", lw=2, ls="--",
-    label=f"Trein ingepland ({TRAIN_SCHED_MIN:.0f} min)"
-)
-
-# Annotate each bar with the predicted time
-for bar, val in zip(bars, df_plot["car_pred_min"]):
-    axes[0].text(
-        val + 0.5, bar.get_y() + bar.get_height() / 2,
-        f"{val:.0f}", va="center", fontsize=8.5
-    )
-
-# Legend for risk colours
-legend_patches = [
-    mpatches.Patch(color="#4caf50", label="Groen — normaal"),
-    mpatches.Patch(color="#ff9800", label="Oranje — verhoogd risico"),
-    mpatches.Patch(color="#f44336", label="Rood — hoog risico"),
-    mpatches.Patch(color="steelblue", label=f"Trein ({TRAIN_SCHED_MIN:.0f} min, gestippeld)"),
-]
-axes[0].legend(handles=legend_patches, loc="lower right", fontsize=8)
-axes[0].set_xlabel("Geschatte auto-reistijd (min)")
-axes[0].set_title("Voorspelde auto-reistijd per scenario\n(kleur = risicoklasse)", fontweight="bold")
-axes[0].invert_yaxis()    # first scenario at the top
-
-# ── RIGHT: mode distribution ─────────────────────────────────────────────────
-mode_counts = df_results["mode_recommended"].value_counts()
-pie_colors  = {
-    "auto":         "#1565c0",
-    "trein":        "#f9a825",
-    "thuiswerken":  "#757575",
+MODE_COLORS = {
+    "auto":        "#1565c0",   # blue  — car preferred
+    "trein":       "#e65100",   # deep orange — train preferred
+    "thuiswerken": "#757575",   # grey — stay home / public holiday
 }
-axes[1].pie(
-    mode_counts.values,
-    labels=mode_counts.index,
-    colors=[pie_colors.get(m, "grey") for m in mode_counts.index],
-    autopct="%1.0f%%",
-    startangle=90,
-    textprops={"fontsize": 11},
-    wedgeprops={"edgecolor": "white", "linewidth": 1.5},
+# Hatching encodes the weather risk level on top of the mode colour
+RISK_HATCH = {"rood": "///", "oranje": "xx", "groen": ""}
+
+# Sort scenarios by estimated car time ascending so the threshold line cuts
+# cleanly through the chart — everything left = car zone, right = train zone.
+df_plot = (
+    df_results[df_results["car_pred_min"].notna()]
+    .sort_values("car_pred_min", ascending=True)
+    .reset_index(drop=True)
 )
-axes[1].set_title(
-    f"Aanbevolen reismodus\n({len(SCENARIOS)} scenario's totaal)",
-    fontweight="bold"
+
+n          = len(df_plot)
+fig_height = max(16, n * 0.40 + 3)
+x_max      = df_plot["car_pred_min"].max() * 1.18
+
+fig, (ax_main, ax_side) = plt.subplots(
+    1, 2, figsize=(18, fig_height),
+    gridspec_kw={"width_ratios": [3, 1]}
 )
+plt.subplots_adjust(wspace=0.28)
+
+# ── Background zones: blue = car preferred, orange = train preferred ──────────
+ax_main.axvspan(0,             THRESHOLD_MIN, alpha=0.07, color="#1565c0", zorder=0)
+ax_main.axvspan(THRESHOLD_MIN, x_max,         alpha=0.07, color="#e65100", zorder=0)
+
+# ── Bars coloured by recommended mode ────────────────────────────────────────
+bar_colors = [MODE_COLORS[m] for m in df_plot["mode_recommended"]]
+bars = ax_main.barh(
+    df_plot["name"], df_plot["car_pred_min"],
+    color=bar_colors, height=0.65, zorder=2,
+    edgecolor="none",
+)
+# Apply risk hatching (overwrites bar edge colour, keep transparent fill edge)
+for bar, risk in zip(bars, df_plot["risk_label"]):
+    bar.set_hatch(RISK_HATCH.get(risk, ""))
+    bar.set_edgecolor("white")
+
+# ── Reference lines ───────────────────────────────────────────────────────────
+ax_main.axvline(TRAIN_SCHED_MIN, color="#999999", lw=1.5, ls="--",  zorder=3)
+ax_main.axvline(THRESHOLD_MIN,   color="black",   lw=2.5, ls="-",   zorder=3)
+
+# Zone labels at the top of the chart
+ax_main.text(THRESHOLD_MIN / 2, -0.85,
+             "← AUTO", ha="center", va="bottom",
+             fontsize=9, color="#1565c0", fontweight="bold", zorder=4)
+ax_main.text(THRESHOLD_MIN + (x_max - THRESHOLD_MIN) / 2, -0.85,
+             "TREIN →", ha="center", va="bottom",
+             fontsize=9, color="#e65100", fontweight="bold", zorder=4)
+
+# ── Value labels at the end of each bar ───────────────────────────────────────
+for bar, val in zip(bars, df_plot["car_pred_min"]):
+    ax_main.text(val + 0.4, bar.get_y() + bar.get_height() / 2,
+                 f"{val:.0f}", va="center", fontsize=7.5, color="black")
+
+# ── Legend ────────────────────────────────────────────────────────────────────
+legend_handles = [
+    mpatches.Patch(color="#1565c0", label="Auto aanbevolen"),
+    mpatches.Patch(color="#e65100", label="Trein aanbevolen"),
+    mpatches.Patch(color="#757575", label="Thuiswerken / feestdag"),
+    mlines.Line2D([0], [0], color="#999", ls="--", lw=1.5,
+                  label=f"Trein: {TRAIN_SCHED_MIN:.0f} min"),
+    mlines.Line2D([0], [0], color="black", ls="-", lw=2.5,
+                  label=f"Auto-drempel: trein + {CAR_PREF_BUFFER_MIN} min ({THRESHOLD_MIN:.0f} min)"),
+    mpatches.Patch(facecolor="white", hatch="///", edgecolor="#444",
+                   label="Hoog risico (rood)"),
+    mpatches.Patch(facecolor="white", hatch="xx",  edgecolor="#444",
+                   label="Verhoogd risico (oranje)"),
+]
+ax_main.legend(handles=legend_handles, loc="lower right", fontsize=8.5, framealpha=0.93)
+
+ax_main.set_xlabel("Geschatte auto-reistijd (min)", fontsize=11)
+ax_main.set_xlim(left=0, right=x_max)
+ax_main.set_title(
+    "Auto-reistijd per scenario vs. beslissingsdrempel\n"
+    "(kleur = aanbevolen modus  |  arcering = risico-niveau)",
+    fontweight="bold", fontsize=11
+)
+ax_main.invert_yaxis()   # shortest bar (fastest car) at top
+
+# ── Side panel: mode count bar chart (clearer than a pie) ─────────────────────
+mode_order  = ["auto", "trein", "thuiswerken"]
+mode_labels = ["Auto", "Trein", "Thuiswerken"]
+mode_counts = df_results["mode_recommended"].value_counts()
+counts      = [mode_counts.get(m, 0) for m in mode_order]
+
+ax_side.barh(mode_labels, counts,
+             color=[MODE_COLORS[m] for m in mode_order],
+             edgecolor="white", height=0.5)
+for i, cnt in enumerate(counts):
+    pct = cnt / len(df_results) * 100
+    ax_side.text(cnt + 0.15, i, f"{cnt}  ({pct:.0f}%)", va="center", fontsize=11)
+ax_side.set_xlim(0, max(counts) * 1.45)
+ax_side.set_xlabel("Aantal scenario's", fontsize=10)
+ax_side.set_title(
+    f"Aanbevolen modus\n({len(SCENARIOS)} scenario's totaal)",
+    fontweight="bold", fontsize=11
+)
+ax_side.invert_yaxis()
 
 fig.suptitle(
-    "Scenario-voorspellingen — Gent → Mechelen (aankomst 09:00)",
-    fontsize=14, fontweight="bold"
+    f"Scenario-voorspellingen — Gent → Mechelen (aankomst 09:00)\n"
+    f"Auto verkozen indien auto-tijd ≤ trein ({TRAIN_SCHED_MIN:.0f} min) + buffer ({CAR_PREF_BUFFER_MIN} min) = {THRESHOLD_MIN:.0f} min",
+    fontsize=13, fontweight="bold"
 )
 
 out_path = "data/processed/scenario_predictions.png"
