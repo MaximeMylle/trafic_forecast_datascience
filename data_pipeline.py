@@ -70,16 +70,61 @@ END_DATE   = date.today().isoformat()
 RAW  = Path("data/raw")
 PROC = Path("data/processed")
 
-# Weekday congestion multipliers for the E40 corridor during 07:00–09:00.
-# Source: TomTom Traffic Index Belgium 2022-2024 + AWV morning-rush studies.
-# A value of 1.28 means the journey takes 28 % longer than free-flow speed.
-WEEKDAY_CONGESTION = {
-    "Monday":    1.28,   # traffic rebuilds after weekend
-    "Tuesday":   1.35,   # highest rush-hour pressure during the week
-    "Wednesday": 1.20,   # lighter midweek
-    "Thursday":  1.33,   # near-peak again
-    "Friday":    1.15,   # lighter morning; heavier evening return
+# ── Load calibrated factors from factors.json if available ───────────────────
+# factors.json is produced by calibrate_factors.py.  It contains weekday and
+# weather factors derived from the actual Infrabel + Vlaams Verkeercentrum data.
+# If the file does not exist the hard-coded defaults below are used instead.
+_FACTORS_PATH = Path(__file__).parent / "factors.json"
+_FACTORS: dict = {}
+
+if _FACTORS_PATH.exists():
+    try:
+        with open(_FACTORS_PATH, encoding="utf-8") as _f:
+            _FACTORS = json.load(_f)
+        print(f"[factors] Loaded calibrated factors from {_FACTORS_PATH.name}"
+              f"  (calibrated on {_FACTORS.get('_meta', {}).get('calibrated_on', '?')})")
+    except Exception as _e:
+        print(f"[factors] WARNING: could not read {_FACTORS_PATH}: {_e}  — using defaults.")
+else:
+    print("[factors] factors.json not found — using hard-coded defaults.")
+    print("[factors]   Run  python calibrate_factors.py  to derive factors from real data.")
+
+# ── Weekday congestion factors ───────────────────────────────────────────────
+# Absolute factors (× OSRM free-flow time).  Default: TomTom Belgium 2022-2024.
+# Overridden by factors.json when present.
+_DEFAULT_WEEKDAY_ABS = {
+    "Monday":    1.28,
+    "Tuesday":   1.35,
+    "Wednesday": 1.20,
+    "Thursday":  1.33,
+    "Friday":    1.15,
 }
+WEEKDAY_CONGESTION = _FACTORS.get("weekday_congestion_absolute", _DEFAULT_WEEKDAY_ABS)
+
+# Relative factors (mean = 1.0), applied on top of the VC measured base.
+# If factors.json is present these come from the calibration; otherwise they are
+# derived from the absolute defaults above so that both dicts stay consistent.
+if "weekday_congestion_relative" in _FACTORS:
+    WEEKDAY_CONGESTION_REL = _FACTORS["weekday_congestion_relative"]
+else:
+    _avg = sum(_DEFAULT_WEEKDAY_ABS.values()) / len(_DEFAULT_WEEKDAY_ABS)
+    WEEKDAY_CONGESTION_REL = {k: round(v / _avg, 4) for k, v in _DEFAULT_WEEKDAY_ABS.items()}
+
+# ── Weather additive factors ──────────────────────────────────────────────────
+# Each value is the fraction added to the base travel time when that weather
+# condition is active during the 06:00–09:00 commute window.
+# Default values: literature estimates; overridden by factors.json.
+_DEFAULT_WEATHER = {
+    "rain_peak_light":    0.03,
+    "rain_peak_moderate": 0.07,
+    "rain_peak_heavy":    0.12,
+    "snow_any":           0.25,
+    "frost_mild":         0.07,
+    "frost_severe":       0.15,
+    "wind_strong":        0.04,
+    "wind_storm":         0.08,
+}
+WEATHER_FACTORS: dict = _FACTORS.get("weather_additive_factors", _DEFAULT_WEATHER)
 
 # Path to the Infrabel dataset index CSV (provided by the user)
 TRAIN_DATASETS_INDEX = Path("data/newdata/newtraindatasets.csv")
@@ -92,12 +137,6 @@ STATION_MECHELEN = "MECHELEN"
 # the actual train journey time, still prefer the car (accounts for door-to-door
 # convenience vs waiting on a platform).  Set to 0 for strict fastest-wins logic.
 CAR_PREF_BUFFER_MIN = 10
-
-# Relative weekday congestion multipliers, normalised so their mean == 1.0.
-# Applied on top of the Vlaams Verkeercentrum base time (which already averages
-# Mon–Fri school days).  Derived from WEEKDAY_CONGESTION above.
-_AVG_WD_FACTOR = sum(WEEKDAY_CONGESTION.values()) / len(WEEKDAY_CONGESTION)
-WEEKDAY_CONGESTION_REL = {k: round(v / _AVG_WD_FACTOR, 4) for k, v in WEEKDAY_CONGESTION.items()}
 
 # Only the columns we need from each (large) Infrabel monthly file.
 # Reading only these columns reduces memory use by ~70 %.
@@ -484,37 +523,26 @@ def car_travel_time_estimate(
     -------
     Estimated travel time in minutes, clipped to a realistic range [35, 150].
     """
-    # Step 1 — weekday congestion factor
+    # Step 1 — weekday congestion factor (from factors.json or default)
     weekday = row.get("weekday", "Wednesday")
     wd_factor = WEEKDAY_CONGESTION.get(weekday, 1.20)
 
-    # Step 2 — weather adjustment factors
-    rain  = row.get("rain_peak", 0) or 0       # mm/h peak precipitation
-    wind  = row.get("wind_peak", 0) or 0       # km/h peak wind speed
-    tmin  = row.get("temp_min", 10) or 10      # minimum temperature (°C)
-    snow  = row.get("snow_total", 0) or 0      # total snowfall (cm)
+    # Step 2 — weather adjustment factors (from factors.json or default)
+    rain  = row.get("rain_peak", 0) or 0
+    wind  = row.get("wind_peak", 0) or 0
+    tmin  = row.get("temp_min", 10) or 10
+    snow  = row.get("snow_total", 0) or 0
 
+    W = WEATHER_FACTORS   # shorthand
     weather_factor = 1.0
-
-    # Rain: light drizzle has a small effect; heavy rain significantly slows
-    # traffic because drivers brake earlier and visibility drops.
-    if   rain >= 5.0:  weather_factor += 0.12
-    elif rain >= 2.0:  weather_factor += 0.07
-    elif rain >= 0.5:  weather_factor += 0.03
-
-    # Snow: even a small amount causes large delays on Belgian roads because
-    # the country has limited snow-clearing capacity outside city centres.
-    if snow >= 1.0:
-        weather_factor += 0.25
-
-    # Frost / black ice: sub-zero temperature without visible snow is one of
-    # the most dangerous and delay-prone conditions.
-    if   tmin <= -3.0: weather_factor += 0.15
-    elif tmin <=  0.0: weather_factor += 0.07
-
-    # Strong wind: affects trucks and bridges, slowing the E40 cross-country.
-    if   wind >= 60.0: weather_factor += 0.08
-    elif wind >= 45.0: weather_factor += 0.04
+    if   rain >= 5.0:  weather_factor += W.get("rain_peak_heavy",    0.12)
+    elif rain >= 2.0:  weather_factor += W.get("rain_peak_moderate",  0.07)
+    elif rain >= 0.5:  weather_factor += W.get("rain_peak_light",     0.03)
+    if   snow >= 1.0:  weather_factor += W.get("snow_any",            0.25)
+    if   tmin <= -3.0: weather_factor += W.get("frost_severe",        0.15)
+    elif tmin <=  0.0: weather_factor += W.get("frost_mild",          0.07)
+    if   wind >= 60.0: weather_factor += W.get("wind_storm",          0.08)
+    elif wind >= 45.0: weather_factor += W.get("wind_strong",         0.04)
 
     # Multiply the free-flow base time by both factors
     estimated = free_flow_min * wd_factor * weather_factor
@@ -635,15 +663,16 @@ def car_vc_travel_time_estimate(
     tmin  = row.get("temp_min", 10) or 10
     snow  = row.get("snow_total", 0) or 0
 
+    W = WEATHER_FACTORS
     weather_factor = 1.0
-    if   rain >= 5.0:  weather_factor += 0.12
-    elif rain >= 2.0:  weather_factor += 0.07
-    elif rain >= 0.5:  weather_factor += 0.03
-    if snow >= 1.0:    weather_factor += 0.25
-    if   tmin <= -3.0: weather_factor += 0.15
-    elif tmin <=  0.0: weather_factor += 0.07
-    if   wind >= 60.0: weather_factor += 0.08
-    elif wind >= 45.0: weather_factor += 0.04
+    if   rain >= 5.0:  weather_factor += W.get("rain_peak_heavy",    0.12)
+    elif rain >= 2.0:  weather_factor += W.get("rain_peak_moderate",  0.07)
+    elif rain >= 0.5:  weather_factor += W.get("rain_peak_light",     0.03)
+    if   snow >= 1.0:  weather_factor += W.get("snow_any",            0.25)
+    if   tmin <= -3.0: weather_factor += W.get("frost_severe",        0.15)
+    elif tmin <=  0.0: weather_factor += W.get("frost_mild",          0.07)
+    if   wind >= 60.0: weather_factor += W.get("wind_storm",          0.08)
+    elif wind >= 45.0: weather_factor += W.get("wind_strong",         0.04)
 
     return round(float(np.clip(vc_base_min * wd_factor * weather_factor, 35, 150)), 1)
 
