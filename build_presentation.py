@@ -846,8 +846,161 @@ def slide_evaluatie(prs, img_dir):
               font_size=12, bullet_char="▸")
 
 
+def slide_beslissing(prs):
+    """Slide 18 — Beslissingslogica: wanneer auto / trein / thuiswerken?"""
+    slide = prs.slides.add_slide(prs.slide_layouts[6])
+    set_bg(slide, C_BG)
+    heading(slide, "Wanneer welke modus? — Het Beslissingsmodel")
+
+    # Decision flow: left → right
+    # Box 1: Weer risico check
+    add_rect(slide, Inches(0.45), Inches(1.3), Inches(3.2), Inches(1.1), C_PANEL)
+    add_rect(slide, Inches(0.45), Inches(1.3), Inches(3.2), Inches(0.07), C_TEAL)
+    add_text_box(slide, "STAP 1  —  Weerrisicoscore",
+                 Inches(0.55), Inches(1.38), Inches(3.0), Inches(0.35),
+                 font_size=11, bold=True, color=C_TEAL)
+    add_text_box(slide,
+                 "Bereken score 0–9 op basis van\nneerslag, wind, vorst, sneeuw & mist",
+                 Inches(0.55), Inches(1.75), Inches(3.0), Inches(0.55),
+                 font_size=11, color=C_WHITE)
+
+    # Arrow right
+    add_text_box(slide, "→", Inches(3.75), Inches(1.65), Inches(0.4), Inches(0.4),
+                 font_size=20, bold=True, color=C_MUTED, align=PP_ALIGN.CENTER)
+
+    # Box 2: threshold check
+    add_rect(slide, Inches(4.2), Inches(1.3), Inches(4.2), Inches(1.1), C_PANEL)
+    add_rect(slide, Inches(4.2), Inches(1.3), Inches(4.2), Inches(0.07), C_ORANGE)
+    add_text_box(slide, "Score >= 5?",
+                 Inches(4.3), Inches(1.38), Inches(4.0), Inches(0.35),
+                 font_size=12, bold=True, color=C_ORANGE)
+    add_text_box(slide,
+                 "Extreme weersomstandigheden —\nbeiden modi onbetrouwbaar of gevaarlijk",
+                 Inches(4.3), Inches(1.75), Inches(3.9), Inches(0.55),
+                 font_size=11, color=C_WHITE)
+
+    # Yes branch: thuiswerken
+    add_text_box(slide, "JA  ↓", Inches(5.4), Inches(2.45), Inches(1.2), Inches(0.35),
+                 font_size=13, bold=True, color=C_ORANGE, align=PP_ALIGN.CENTER)
+    add_rect(slide, Inches(4.5), Inches(2.85), Inches(3.0), Inches(1.6), RGBColor(0x36,0x36,0x36))
+    add_rect(slide, Inches(4.5), Inches(2.85), Inches(3.0), Inches(0.08), C_ORANGE)
+    add_text_box(slide, "THUISWERKEN", Inches(4.6), Inches(2.95), Inches(2.8), Inches(0.45),
+                 font_size=16, bold=True, color=C_ORANGE, align=PP_ALIGN.CENTER)
+    add_text_box(slide,
+                 "Sneeuw + iets · Zware regen + storm\nIJzel + wind · Code rood KMI",
+                 Inches(4.6), Inches(3.45), Inches(2.8), Inches(0.85),
+                 font_size=11, color=C_MUTED, align=PP_ALIGN.CENTER)
+
+    # No branch → step 2
+    add_text_box(slide, "NEE  →", Inches(8.5), Inches(1.65), Inches(1.0), Inches(0.4),
+                 font_size=13, bold=True, color=C_TEAL, align=PP_ALIGN.CENTER)
+
+    add_rect(slide, Inches(9.6), Inches(1.3), Inches(3.5), Inches(1.1), C_PANEL)
+    add_rect(slide, Inches(9.6), Inches(1.3), Inches(3.5), Inches(0.07), C_TEAL)
+    add_text_box(slide, "STAP 2  —  Auto vs. Trein vergelijk",
+                 Inches(9.7), Inches(1.38), Inches(3.3), Inches(0.35),
+                 font_size=11, bold=True, color=C_TEAL)
+    add_text_box(slide,
+                 "Auto-reistijd (VC gecalibreerd)\nvs. Treinreis (58 min) + 10 min buffer",
+                 Inches(9.7), Inches(1.75), Inches(3.3), Inches(0.55),
+                 font_size=11, color=C_WHITE)
+
+    # Auto branch
+    add_text_box(slide, "Auto <= 68 min  ↓", Inches(9.7), Inches(2.45), Inches(2.8), Inches(0.35),
+                 font_size=11, bold=True, color=RGBColor(0x15,0x65,0xC0))
+    add_rect(slide, Inches(9.75), Inches(2.85), Inches(2.8), Inches(1.6), RGBColor(0x0D,0x30,0x6E))
+    add_rect(slide, Inches(9.75), Inches(2.85), Inches(2.8), Inches(0.08), RGBColor(0x15,0x65,0xC0))
+    add_text_box(slide, "AUTO", Inches(9.85), Inches(2.95), Inches(2.6), Inches(0.45),
+                 font_size=16, bold=True, color=RGBColor(0x15,0x65,0xC0), align=PP_ALIGN.CENTER)
+    add_text_box(slide,
+                 "Woensdag (vrijwel altijd)\nDinsdag & vrijdag (normaal weer)",
+                 Inches(9.85), Inches(3.45), Inches(2.6), Inches(0.85),
+                 font_size=11, color=C_MUTED, align=PP_ALIGN.CENTER)
+
+    # Train branch
+    add_text_box(slide, "Auto > 68 min  ↓", Inches(9.7), Inches(4.55), Inches(2.8), Inches(0.35),
+                 font_size=11, bold=True, color=C_ORANGE)
+    add_rect(slide, Inches(9.75), Inches(4.95), Inches(2.8), Inches(1.6), RGBColor(0x3E,0x1A,0x00))
+    add_rect(slide, Inches(9.75), Inches(4.95), Inches(2.8), Inches(0.08), C_ORANGE)
+    add_text_box(slide, "TREIN", Inches(9.85), Inches(5.05), Inches(2.6), Inches(0.45),
+                 font_size=16, bold=True, color=C_ORANGE, align=PP_ALIGN.CENTER)
+    add_text_box(slide,
+                 "Maandag & donderdag (bijna altijd)\nBij zware regen of sterke wind",
+                 Inches(9.85), Inches(5.55), Inches(2.6), Inches(0.85),
+                 font_size=11, color=C_MUTED, align=PP_ALIGN.CENTER)
+
+    # Connecting arrow between step 2 branches
+    add_rect(slide, Inches(11.3), Inches(2.45), Inches(0.04), Inches(3.5), C_MUTED)
+
+    # Weather risk breakdown (bottom panel)
+    add_rect(slide, Inches(0.45), Inches(4.75), Inches(8.9), Inches(2.55), C_PANEL)
+    add_rect(slide, Inches(0.45), Inches(4.75), Inches(8.9), Inches(0.06), C_TEAL)
+    add_text_box(slide, "RISICOSCORE BREAKDOWN (max = 9 punten)  →  drempel = 5",
+                 Inches(0.6), Inches(4.83), Inches(8.6), Inches(0.35),
+                 font_size=12, bold=True, color=C_TEAL)
+
+    risk_rows = [
+        ("Regen  >= 2 mm/u",        "+2 pt", "matige tot zware neerslag"),
+        ("Wind  >= 45 km/h",        "+2 pt", "windstoten op snelweg"),
+        ("Vorst  (temp < 0°C)",     "+1 pt", "ijzel / berijpte wegen"),
+        ("Sneeuw  (> 0 cm)",        "+3 pt", "sneeuw haalt drempel snel!"),
+        ("Mist  (vochtigheid ≥ 97%)","+1 pt","dense ochtendmist"),
+    ]
+    for i, (cond, pts, note) in enumerate(risk_rows):
+        top_i = Inches(5.28 + i * 0.38)
+        col   = C_ORANGE if "3 pt" in pts else (C_TEAL if "2 pt" in pts else C_MUTED)
+        add_text_box(slide, cond,  Inches(0.7),  top_i, Inches(3.0), Inches(0.35),
+                     font_size=12, color=C_WHITE)
+        add_text_box(slide, pts,   Inches(3.75), top_i, Inches(0.8), Inches(0.35),
+                     font_size=12, bold=True, color=col)
+        add_text_box(slide, note,  Inches(4.6),  top_i, Inches(4.6), Inches(0.35),
+                     font_size=11, italic=True, color=C_MUTED)
+
+
+def slide_extended_scenarios(prs, img_dir):
+    """Slide 19 — Uitgebreide scenario-analyse (485 scenarios)"""
+    slide = prs.slides.add_slide(prs.slide_layouts[6])
+    set_bg(slide, C_BG)
+    heading(slide, "Uitgebreide Analyse — 485 Scenario's")
+
+    p = img_dir / "scenarios_extended_by_weather.png"
+    if p.exists():
+        add_image(slide, p, Inches(0.45), Inches(1.2), Inches(8.2), Inches(5.8))
+
+    # right: key findings
+    panel_box(slide, Inches(8.9), Inches(1.2), Inches(4.1), Inches(5.8))
+    add_text_box(slide, "SLEUTELBEVINDINGEN",
+                 Inches(9.1), Inches(1.35), Inches(3.8), Inches(0.4),
+                 font_size=11, bold=True, color=C_TEAL)
+
+    findings = [
+        (C_ORANGE, "Ma & Do: trein wint in 86% van scenario's",
+         "69 min auto vs. 68 min drempel. Elke extra vertraging = trein."),
+        (C_TEAL,   "Woensdag: auto wint altijd (droog/regen)",
+         "55 min auto ruim onder drempel. Enkel storm = thuiswerken."),
+        (RGBColor(0x36,0x36,0x36), "Storm (code rood) = altijd thuiswerken",
+         "Wind > 45 km/h + regen ≥ 2 mm → risicoscore ≥ 5 → thuiswerken."),
+        (C_TEAL,   "Zware regen + wind: 73% trein",
+         "Auto-tijd stijgt door regen (+12%) → overschrijdt drempel op 3 van 5 dagen."),
+    ]
+    for i, (col, title, detail) in enumerate(findings):
+        top_i = Inches(1.85 + i * 1.2)
+        add_rect(slide, Inches(8.9), top_i, Inches(4.1), Inches(1.1), C_BG)
+        add_rect(slide, Inches(8.9), top_i, Inches(0.06), Inches(1.1), col)
+        add_text_box(slide, title,  Inches(9.05), top_i + Inches(0.05),
+                     Inches(3.8), Inches(0.4), font_size=12, bold=True, color=col)
+        add_text_box(slide, detail, Inches(9.05), top_i + Inches(0.48),
+                     Inches(3.8), Inches(0.55), font_size=11, color=C_MUTED)
+
+    add_rect(slide, Inches(8.9), Inches(6.65), Inches(4.1), Inches(0.5), C_PANEL)
+    add_text_box(slide,
+                 "predict_scenarios_extended.py  ·  5 dagen × 12 maanden × 8 weercondities",
+                 Inches(9.0), Inches(6.7), Inches(3.9), Inches(0.4),
+                 font_size=9, italic=True, color=C_MUTED)
+
+
 def slide_scenarios(prs, img_dir):
-    """Slide 17 — 50 Scenario Voorspellingen"""
+    """Slide 20 — 50 Scenario Voorspellingen (ML model)"""
     slide = prs.slides.add_slide(prs.slide_layouts[6])
     set_bg(slide, C_BG)
     heading(slide, "50 Scenario Voorspellingen")
@@ -880,9 +1033,9 @@ def slide_scenarios(prs, img_dir):
                  Inches(9.65), Inches(5.5), Inches(3.3), Inches(0.35),
                  font_size=11, bold=True, color=C_ORANGE)
     add_text_box(slide,
-                 "weather_risk ≥ 5\nÉN beide modi > 90 min\n→ Thuiswerken aanbevolen",
+                 "weather_risk >= 5\n(sneeuw + iets, of zware regen + storm)\n→ Thuiswerken aanbevolen",
                  Inches(9.65), Inches(5.9), Inches(3.3), Inches(1.0),
-                 font_size=13, color=C_WHITE)
+                 font_size=12, color=C_WHITE)
 
 
 def slide_inzichten(prs):
@@ -1016,27 +1169,29 @@ def build():
     img_dir = Path("data/processed")
 
     print("Building slides …")
-    slide_title(prs);                    print("  1/21 — Titelpagina")
-    slide_doel(prs);                     print("  2/21 — Projectdoel")
-    slide_team(prs);                     print("  3/21 — Team & Tijdlijn")
-    slide_databronnen(prs);              print("  4/21 — Databronnen overzicht")
-    slide_weer(prs, img_dir);            print("  5/21 — Weerdata")
-    slide_pendel_weer(prs, img_dir);     print("  6/21 — Weerpatroon pendel")
-    slide_kalender(prs, img_dir);        print("  7/21 — Kalender")
-    slide_infrabel(prs, img_dir);        print("  8/21 — Infrabel treindata")
-    slide_infrabel_weekdag(prs, img_dir); print("  9/21 — Trein per weekdag")
-    slide_auto(prs, img_dir);            print(" 10/21 — Autodata")
-    slide_factor_calibratie(prs, img_dir); print(" 11/21 — Factor kalibratie")
-    slide_auto_trein(prs, img_dir);      print(" 12/21 — Auto vs Trein")
-    slide_heatmap(prs, img_dir);         print(" 13/21 — Weerrisico heatmap")
-    slide_pipeline(prs);                 print(" 14/21 — Data pipeline")
-    slide_ml(prs);                       print(" 15/21 — ML aanpak")
-    slide_features(prs);                 print(" 16/21 — Features")
-    slide_evaluatie(prs, img_dir);       print(" 17/21 — Modelresultaten")
-    slide_scenarios(prs, img_dir);       print(" 18/21 — 50 scenarios")
-    slide_inzichten(prs);                print(" 19/21 — Sleutelinzichten")
-    slide_demo(prs);                     print(" 20/21 — Live demo")
-    slide_conclusie(prs);                print(" 21/21 — Conclusie")
+    slide_title(prs);                      print("  1/23 — Titelpagina")
+    slide_doel(prs);                       print("  2/23 — Projectdoel")
+    slide_team(prs);                       print("  3/23 — Team & Tijdlijn")
+    slide_databronnen(prs);                print("  4/23 — Databronnen overzicht")
+    slide_weer(prs, img_dir);              print("  5/23 — Weerdata")
+    slide_pendel_weer(prs, img_dir);       print("  6/23 — Weerpatroon pendel")
+    slide_kalender(prs, img_dir);          print("  7/23 — Kalender")
+    slide_infrabel(prs, img_dir);          print("  8/23 — Infrabel treindata")
+    slide_infrabel_weekdag(prs, img_dir);  print("  9/23 — Trein per weekdag")
+    slide_auto(prs, img_dir);              print(" 10/23 — Autodata")
+    slide_factor_calibratie(prs, img_dir); print(" 11/23 — Factor kalibratie")
+    slide_auto_trein(prs, img_dir);        print(" 12/23 — Auto vs Trein")
+    slide_heatmap(prs, img_dir);           print(" 13/23 — Weerrisico heatmap")
+    slide_pipeline(prs);                   print(" 14/23 — Data pipeline")
+    slide_ml(prs);                         print(" 15/23 — ML aanpak")
+    slide_features(prs);                   print(" 16/23 — Features")
+    slide_evaluatie(prs, img_dir);         print(" 17/23 — Modelresultaten")
+    slide_beslissing(prs);                 print(" 18/23 — Beslissingslogica")
+    slide_extended_scenarios(prs, img_dir); print(" 19/23 — Uitgebreide scenario's")
+    slide_scenarios(prs, img_dir);         print(" 20/23 — 50 scenarios (ML)")
+    slide_inzichten(prs);                  print(" 21/23 — Sleutelinzichten")
+    slide_demo(prs);                       print(" 22/23 — Live demo")
+    slide_conclusie(prs);                  print(" 23/23 — Conclusie")
 
     out = Path("Gent_Mechelen_Presentatie.pptx")
     prs.save(str(out))

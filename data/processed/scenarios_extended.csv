@@ -1,0 +1,486 @@
+weekday_num,weekday_nl,month,month_nl,weather_label,is_school_holiday,rain_peak,wind_peak,temp_min,snow_total,humidity_max,weather_risk,car_vc_min,train_sched_min,mode,risk_label
+0,Maandag,1,Jan,Droog / zonnig,False,0.0,12,1.0,0.0,60,0,69.9,58.0,trein,oranje
+0,Maandag,1,Jan,Lichte regen,False,0.9,20,1.0,0.0,82,0,71.8,58.0,trein,oranje
+0,Maandag,1,Jan,Matige regen,False,2.5,30,1.0,0.0,90,2,71.8,58.0,trein,oranje
+0,Maandag,1,Jan,Zware regen,False,5.5,38,1.0,0.0,95,2,77.5,58.0,trein,oranje
+0,Maandag,1,Jan,Zware regen + wind,False,5.5,55,1.0,0.0,96,4,81.8,58.0,trein,oranje
+0,Maandag,1,Jan,Sneeuw,False,0.5,20,-1.5,3.0,96,4,73.4,58.0,trein,oranje
+0,Maandag,1,Jan,IJzel (vorst),False,0.0,10,-4.0,0.0,88,1,72.6,58.0,trein,oranje
+0,Maandag,1,Jan,Storm (code rood),False,4.0,85,1.0,0.0,97,5,76.1,58.0,thuiswerken,rood
+0,Maandag,2,Feb,Droog / zonnig,False,0.0,12,0.5,0.0,60,0,69.9,58.0,trein,oranje
+0,Maandag,2,Feb,Lichte regen,False,0.9,20,0.5,0.0,82,0,71.8,58.0,trein,oranje
+0,Maandag,2,Feb,Matige regen,False,2.5,30,0.5,0.0,90,2,71.8,58.0,trein,oranje
+0,Maandag,2,Feb,Zware regen,False,5.5,38,0.5,0.0,95,2,77.5,58.0,trein,oranje
+0,Maandag,2,Feb,Zware regen + wind,False,5.5,55,0.5,0.0,96,4,81.8,58.0,trein,oranje
+0,Maandag,2,Feb,Sneeuw,False,0.5,20,-1.5,3.0,96,4,73.4,58.0,trein,oranje
+0,Maandag,2,Feb,IJzel (vorst),False,0.0,10,-4.0,0.0,88,1,72.6,58.0,trein,oranje
+0,Maandag,2,Feb,Storm (code rood),False,4.0,85,0.5,0.0,97,5,76.1,58.0,thuiswerken,rood
+0,Maandag,3,Mrt,Droog / zonnig,False,0.0,12,3.0,0.0,60,0,69.9,58.0,trein,oranje
+0,Maandag,3,Mrt,Lichte regen,False,0.9,20,3.0,0.0,82,0,71.8,58.0,trein,oranje
+0,Maandag,3,Mrt,Matige regen,False,2.5,30,3.0,0.0,90,2,71.8,58.0,trein,oranje
+0,Maandag,3,Mrt,Zware regen,False,5.5,38,3.0,0.0,95,2,77.5,58.0,trein,oranje
+0,Maandag,3,Mrt,Zware regen + wind,False,5.5,55,3.0,0.0,96,4,81.8,58.0,trein,oranje
+0,Maandag,3,Mrt,Sneeuw,False,0.5,20,-1.5,3.0,96,4,73.4,58.0,trein,oranje
+0,Maandag,3,Mrt,IJzel (vorst),False,0.0,10,-4.0,0.0,88,1,72.6,58.0,trein,oranje
+0,Maandag,3,Mrt,Storm (code rood),False,4.0,85,3.0,0.0,97,5,76.1,58.0,thuiswerken,rood
+0,Maandag,4,Apr,Droog / zonnig,False,0.0,12,6.0,0.0,60,0,69.9,58.0,trein,oranje
+0,Maandag,4,Apr,Lichte regen,False,0.9,20,6.0,0.0,82,0,71.8,58.0,trein,oranje
+0,Maandag,4,Apr,Matige regen,False,2.5,30,6.0,0.0,90,2,71.8,58.0,trein,oranje
+0,Maandag,4,Apr,Zware regen,False,5.5,38,6.0,0.0,95,2,77.5,58.0,trein,oranje
+0,Maandag,4,Apr,Zware regen + wind,False,5.5,55,6.0,0.0,96,4,81.8,58.0,trein,oranje
+0,Maandag,4,Apr,Sneeuw,False,0.5,20,-1.5,3.0,96,4,73.4,58.0,trein,oranje
+0,Maandag,4,Apr,IJzel (vorst),False,0.0,10,-4.0,0.0,88,1,72.6,58.0,trein,oranje
+0,Maandag,4,Apr,Storm (code rood),False,4.0,85,6.0,0.0,97,5,76.1,58.0,thuiswerken,rood
+0,Maandag,5,Mei,Droog / zonnig,False,0.0,12,9.0,0.0,60,0,69.9,58.0,trein,oranje
+0,Maandag,5,Mei,Lichte regen,False,0.9,20,9.0,0.0,82,0,71.8,58.0,trein,oranje
+0,Maandag,5,Mei,Matige regen,False,2.5,30,9.0,0.0,90,2,71.8,58.0,trein,oranje
+0,Maandag,5,Mei,Zware regen,False,5.5,38,9.0,0.0,95,2,77.5,58.0,trein,oranje
+0,Maandag,5,Mei,Zware regen + wind,False,5.5,55,9.0,0.0,96,4,81.8,58.0,trein,oranje
+0,Maandag,5,Mei,Sneeuw,False,0.5,20,-1.5,3.0,96,4,73.4,58.0,trein,oranje
+0,Maandag,5,Mei,IJzel (vorst),False,0.0,10,-4.0,0.0,88,1,72.6,58.0,trein,oranje
+0,Maandag,5,Mei,Storm (code rood),False,4.0,85,9.0,0.0,97,5,76.1,58.0,thuiswerken,rood
+0,Maandag,6,Jun,Droog / zonnig,False,0.0,12,12.0,0.0,60,0,69.9,58.0,trein,oranje
+0,Maandag,6,Jun,Lichte regen,False,0.9,20,12.0,0.0,82,0,71.8,58.0,trein,oranje
+0,Maandag,6,Jun,Matige regen,False,2.5,30,12.0,0.0,90,2,71.8,58.0,trein,oranje
+0,Maandag,6,Jun,Zware regen,False,5.5,38,12.0,0.0,95,2,77.5,58.0,trein,oranje
+0,Maandag,6,Jun,Zware regen + wind,False,5.5,55,12.0,0.0,96,4,81.8,58.0,trein,oranje
+0,Maandag,6,Jun,Sneeuw,False,0.5,20,-1.5,3.0,96,4,73.4,58.0,trein,oranje
+0,Maandag,6,Jun,IJzel (vorst),False,0.0,10,-4.0,0.0,88,1,72.6,58.0,trein,oranje
+0,Maandag,6,Jun,Storm (code rood),False,4.0,85,12.0,0.0,97,5,76.1,58.0,thuiswerken,rood
+0,Maandag,7,Jul,Droog / zonnig,True,0.0,12,15.0,0.0,60,0,59.4,58.0,auto,groen
+0,Maandag,7,Jul,Lichte regen,True,0.9,20,15.0,0.0,82,0,61.0,58.0,auto,groen
+0,Maandag,7,Jul,Matige regen,True,2.5,30,15.0,0.0,90,2,61.0,58.0,auto,oranje
+0,Maandag,7,Jul,Zware regen,True,5.5,38,15.0,0.0,95,2,65.9,58.0,auto,oranje
+0,Maandag,7,Jul,Zware regen + wind,True,5.5,55,15.0,0.0,96,4,69.5,58.0,trein,oranje
+0,Maandag,7,Jul,Sneeuw,True,0.5,20,-1.5,3.0,96,4,62.4,58.0,auto,oranje
+0,Maandag,7,Jul,IJzel (vorst),True,0.0,10,-4.0,0.0,88,1,61.7,58.0,auto,groen
+0,Maandag,7,Jul,Storm (code rood),True,4.0,85,15.0,0.0,97,5,64.7,58.0,thuiswerken,rood
+0,Maandag,8,Aug,Droog / zonnig,True,0.0,12,14.0,0.0,60,0,59.4,58.0,auto,groen
+0,Maandag,8,Aug,Lichte regen,True,0.9,20,14.0,0.0,82,0,61.0,58.0,auto,groen
+0,Maandag,8,Aug,Matige regen,True,2.5,30,14.0,0.0,90,2,61.0,58.0,auto,oranje
+0,Maandag,8,Aug,Zware regen,True,5.5,38,14.0,0.0,95,2,65.9,58.0,auto,oranje
+0,Maandag,8,Aug,Zware regen + wind,True,5.5,55,14.0,0.0,96,4,69.5,58.0,trein,oranje
+0,Maandag,8,Aug,Sneeuw,True,0.5,20,-1.5,3.0,96,4,62.4,58.0,auto,oranje
+0,Maandag,8,Aug,IJzel (vorst),True,0.0,10,-4.0,0.0,88,1,61.7,58.0,auto,groen
+0,Maandag,8,Aug,Storm (code rood),True,4.0,85,14.0,0.0,97,5,64.7,58.0,thuiswerken,rood
+0,Maandag,9,Sep,Droog / zonnig,False,0.0,12,9.0,0.0,60,0,69.9,58.0,trein,oranje
+0,Maandag,9,Sep,Lichte regen,False,0.9,20,9.0,0.0,82,0,71.8,58.0,trein,oranje
+0,Maandag,9,Sep,Matige regen,False,2.5,30,9.0,0.0,90,2,71.8,58.0,trein,oranje
+0,Maandag,9,Sep,Zware regen,False,5.5,38,9.0,0.0,95,2,77.5,58.0,trein,oranje
+0,Maandag,9,Sep,Zware regen + wind,False,5.5,55,9.0,0.0,96,4,81.8,58.0,trein,oranje
+0,Maandag,9,Sep,Sneeuw,False,0.5,20,-1.5,3.0,96,4,73.4,58.0,trein,oranje
+0,Maandag,9,Sep,IJzel (vorst),False,0.0,10,-4.0,0.0,88,1,72.6,58.0,trein,oranje
+0,Maandag,9,Sep,Storm (code rood),False,4.0,85,9.0,0.0,97,5,76.1,58.0,thuiswerken,rood
+0,Maandag,10,Okt,Droog / zonnig,False,0.0,12,5.0,0.0,60,0,69.9,58.0,trein,oranje
+0,Maandag,10,Okt,Lichte regen,False,0.9,20,5.0,0.0,82,0,71.8,58.0,trein,oranje
+0,Maandag,10,Okt,Matige regen,False,2.5,30,5.0,0.0,90,2,71.8,58.0,trein,oranje
+0,Maandag,10,Okt,Zware regen,False,5.5,38,5.0,0.0,95,2,77.5,58.0,trein,oranje
+0,Maandag,10,Okt,Zware regen + wind,False,5.5,55,5.0,0.0,96,4,81.8,58.0,trein,oranje
+0,Maandag,10,Okt,Sneeuw,False,0.5,20,-1.5,3.0,96,4,73.4,58.0,trein,oranje
+0,Maandag,10,Okt,IJzel (vorst),False,0.0,10,-4.0,0.0,88,1,72.6,58.0,trein,oranje
+0,Maandag,10,Okt,Storm (code rood),False,4.0,85,5.0,0.0,97,5,76.1,58.0,thuiswerken,rood
+0,Maandag,11,Nov,Droog / zonnig,False,0.0,12,2.0,0.0,60,0,69.9,58.0,trein,oranje
+0,Maandag,11,Nov,Lichte regen,False,0.9,20,2.0,0.0,82,0,71.8,58.0,trein,oranje
+0,Maandag,11,Nov,Matige regen,False,2.5,30,2.0,0.0,90,2,71.8,58.0,trein,oranje
+0,Maandag,11,Nov,Zware regen,False,5.5,38,2.0,0.0,95,2,77.5,58.0,trein,oranje
+0,Maandag,11,Nov,Zware regen + wind,False,5.5,55,2.0,0.0,96,4,81.8,58.0,trein,oranje
+0,Maandag,11,Nov,Sneeuw,False,0.5,20,-1.5,3.0,96,4,73.4,58.0,trein,oranje
+0,Maandag,11,Nov,IJzel (vorst),False,0.0,10,-4.0,0.0,88,1,72.6,58.0,trein,oranje
+0,Maandag,11,Nov,Storm (code rood),False,4.0,85,2.0,0.0,97,5,76.1,58.0,thuiswerken,rood
+0,Maandag,12,Dec,Droog / zonnig,False,0.0,12,0.5,0.0,60,0,69.9,58.0,trein,oranje
+0,Maandag,12,Dec,Lichte regen,False,0.9,20,0.5,0.0,82,0,71.8,58.0,trein,oranje
+0,Maandag,12,Dec,Matige regen,False,2.5,30,0.5,0.0,90,2,71.8,58.0,trein,oranje
+0,Maandag,12,Dec,Zware regen,False,5.5,38,0.5,0.0,95,2,77.5,58.0,trein,oranje
+0,Maandag,12,Dec,Zware regen + wind,False,5.5,55,0.5,0.0,96,4,81.8,58.0,trein,oranje
+0,Maandag,12,Dec,Sneeuw,False,0.5,20,-1.5,3.0,96,4,73.4,58.0,trein,oranje
+0,Maandag,12,Dec,IJzel (vorst),False,0.0,10,-4.0,0.0,88,1,72.6,58.0,trein,oranje
+0,Maandag,12,Dec,Storm (code rood),False,4.0,85,0.5,0.0,97,5,76.1,58.0,thuiswerken,rood
+1,Dinsdag,1,Jan,Droog / zonnig,False,0.0,12,1.0,0.0,60,0,61.4,58.0,auto,groen
+1,Dinsdag,1,Jan,Lichte regen,False,0.9,20,1.0,0.0,82,0,63.3,58.0,auto,groen
+1,Dinsdag,1,Jan,Matige regen,False,2.5,30,1.0,0.0,90,2,63.3,58.0,auto,oranje
+1,Dinsdag,1,Jan,Zware regen,False,5.5,38,1.0,0.0,95,2,69.0,58.0,trein,oranje
+1,Dinsdag,1,Jan,Zware regen + wind,False,5.5,55,1.0,0.0,96,4,73.3,58.0,trein,oranje
+1,Dinsdag,1,Jan,Sneeuw,False,0.5,20,-1.5,3.0,96,4,64.9,58.0,auto,oranje
+1,Dinsdag,1,Jan,IJzel (vorst),False,0.0,10,-4.0,0.0,88,1,64.1,58.0,auto,groen
+1,Dinsdag,1,Jan,Storm (code rood),False,4.0,85,1.0,0.0,97,5,67.6,58.0,thuiswerken,rood
+1,Dinsdag,2,Feb,Droog / zonnig,False,0.0,12,0.5,0.0,60,0,61.4,58.0,auto,groen
+1,Dinsdag,2,Feb,Lichte regen,False,0.9,20,0.5,0.0,82,0,63.3,58.0,auto,groen
+1,Dinsdag,2,Feb,Matige regen,False,2.5,30,0.5,0.0,90,2,63.3,58.0,auto,oranje
+1,Dinsdag,2,Feb,Zware regen,False,5.5,38,0.5,0.0,95,2,69.0,58.0,trein,oranje
+1,Dinsdag,2,Feb,Zware regen + wind,False,5.5,55,0.5,0.0,96,4,73.3,58.0,trein,oranje
+1,Dinsdag,2,Feb,Sneeuw,False,0.5,20,-1.5,3.0,96,4,64.9,58.0,auto,oranje
+1,Dinsdag,2,Feb,IJzel (vorst),False,0.0,10,-4.0,0.0,88,1,64.1,58.0,auto,groen
+1,Dinsdag,2,Feb,Storm (code rood),False,4.0,85,0.5,0.0,97,5,67.6,58.0,thuiswerken,rood
+1,Dinsdag,3,Mrt,Droog / zonnig,False,0.0,12,3.0,0.0,60,0,61.4,58.0,auto,groen
+1,Dinsdag,3,Mrt,Lichte regen,False,0.9,20,3.0,0.0,82,0,63.3,58.0,auto,groen
+1,Dinsdag,3,Mrt,Matige regen,False,2.5,30,3.0,0.0,90,2,63.3,58.0,auto,oranje
+1,Dinsdag,3,Mrt,Zware regen,False,5.5,38,3.0,0.0,95,2,69.0,58.0,trein,oranje
+1,Dinsdag,3,Mrt,Zware regen + wind,False,5.5,55,3.0,0.0,96,4,73.3,58.0,trein,oranje
+1,Dinsdag,3,Mrt,Sneeuw,False,0.5,20,-1.5,3.0,96,4,64.9,58.0,auto,oranje
+1,Dinsdag,3,Mrt,IJzel (vorst),False,0.0,10,-4.0,0.0,88,1,64.1,58.0,auto,groen
+1,Dinsdag,3,Mrt,Storm (code rood),False,4.0,85,3.0,0.0,97,5,67.6,58.0,thuiswerken,rood
+1,Dinsdag,4,Apr,Droog / zonnig,False,0.0,12,6.0,0.0,60,0,61.4,58.0,auto,groen
+1,Dinsdag,4,Apr,Lichte regen,False,0.9,20,6.0,0.0,82,0,63.3,58.0,auto,groen
+1,Dinsdag,4,Apr,Matige regen,False,2.5,30,6.0,0.0,90,2,63.3,58.0,auto,oranje
+1,Dinsdag,4,Apr,Zware regen,False,5.5,38,6.0,0.0,95,2,69.0,58.0,trein,oranje
+1,Dinsdag,4,Apr,Zware regen + wind,False,5.5,55,6.0,0.0,96,4,73.3,58.0,trein,oranje
+1,Dinsdag,4,Apr,Sneeuw,False,0.5,20,-1.5,3.0,96,4,64.9,58.0,auto,oranje
+1,Dinsdag,4,Apr,IJzel (vorst),False,0.0,10,-4.0,0.0,88,1,64.1,58.0,auto,groen
+1,Dinsdag,4,Apr,Storm (code rood),False,4.0,85,6.0,0.0,97,5,67.6,58.0,thuiswerken,rood
+1,Dinsdag,5,Mei,Droog / zonnig,False,0.0,12,9.0,0.0,60,0,61.4,58.0,auto,groen
+1,Dinsdag,5,Mei,Lichte regen,False,0.9,20,9.0,0.0,82,0,63.3,58.0,auto,groen
+1,Dinsdag,5,Mei,Matige regen,False,2.5,30,9.0,0.0,90,2,63.3,58.0,auto,oranje
+1,Dinsdag,5,Mei,Zware regen,False,5.5,38,9.0,0.0,95,2,69.0,58.0,trein,oranje
+1,Dinsdag,5,Mei,Zware regen + wind,False,5.5,55,9.0,0.0,96,4,73.3,58.0,trein,oranje
+1,Dinsdag,5,Mei,Sneeuw,False,0.5,20,-1.5,3.0,96,4,64.9,58.0,auto,oranje
+1,Dinsdag,5,Mei,IJzel (vorst),False,0.0,10,-4.0,0.0,88,1,64.1,58.0,auto,groen
+1,Dinsdag,5,Mei,Storm (code rood),False,4.0,85,9.0,0.0,97,5,67.6,58.0,thuiswerken,rood
+1,Dinsdag,6,Jun,Droog / zonnig,False,0.0,12,12.0,0.0,60,0,61.4,58.0,auto,groen
+1,Dinsdag,6,Jun,Lichte regen,False,0.9,20,12.0,0.0,82,0,63.3,58.0,auto,groen
+1,Dinsdag,6,Jun,Matige regen,False,2.5,30,12.0,0.0,90,2,63.3,58.0,auto,oranje
+1,Dinsdag,6,Jun,Zware regen,False,5.5,38,12.0,0.0,95,2,69.0,58.0,trein,oranje
+1,Dinsdag,6,Jun,Zware regen + wind,False,5.5,55,12.0,0.0,96,4,73.3,58.0,trein,oranje
+1,Dinsdag,6,Jun,Sneeuw,False,0.5,20,-1.5,3.0,96,4,64.9,58.0,auto,oranje
+1,Dinsdag,6,Jun,IJzel (vorst),False,0.0,10,-4.0,0.0,88,1,64.1,58.0,auto,groen
+1,Dinsdag,6,Jun,Storm (code rood),False,4.0,85,12.0,0.0,97,5,67.6,58.0,thuiswerken,rood
+1,Dinsdag,7,Jul,Droog / zonnig,True,0.0,12,15.0,0.0,60,0,52.2,58.0,auto,groen
+1,Dinsdag,7,Jul,Lichte regen,True,0.9,20,15.0,0.0,82,0,53.8,58.0,auto,groen
+1,Dinsdag,7,Jul,Matige regen,True,2.5,30,15.0,0.0,90,2,53.8,58.0,auto,oranje
+1,Dinsdag,7,Jul,Zware regen,True,5.5,38,15.0,0.0,95,2,58.6,58.0,auto,oranje
+1,Dinsdag,7,Jul,Zware regen + wind,True,5.5,55,15.0,0.0,96,4,62.3,58.0,auto,oranje
+1,Dinsdag,7,Jul,Sneeuw,True,0.5,20,-1.5,3.0,96,4,55.2,58.0,auto,oranje
+1,Dinsdag,7,Jul,IJzel (vorst),True,0.0,10,-4.0,0.0,88,1,54.5,58.0,auto,groen
+1,Dinsdag,7,Jul,Storm (code rood),True,4.0,85,15.0,0.0,97,5,57.5,58.0,thuiswerken,rood
+1,Dinsdag,8,Aug,Droog / zonnig,True,0.0,12,14.0,0.0,60,0,52.2,58.0,auto,groen
+1,Dinsdag,8,Aug,Lichte regen,True,0.9,20,14.0,0.0,82,0,53.8,58.0,auto,groen
+1,Dinsdag,8,Aug,Matige regen,True,2.5,30,14.0,0.0,90,2,53.8,58.0,auto,oranje
+1,Dinsdag,8,Aug,Zware regen,True,5.5,38,14.0,0.0,95,2,58.6,58.0,auto,oranje
+1,Dinsdag,8,Aug,Zware regen + wind,True,5.5,55,14.0,0.0,96,4,62.3,58.0,auto,oranje
+1,Dinsdag,8,Aug,Sneeuw,True,0.5,20,-1.5,3.0,96,4,55.2,58.0,auto,oranje
+1,Dinsdag,8,Aug,IJzel (vorst),True,0.0,10,-4.0,0.0,88,1,54.5,58.0,auto,groen
+1,Dinsdag,8,Aug,Storm (code rood),True,4.0,85,14.0,0.0,97,5,57.5,58.0,thuiswerken,rood
+1,Dinsdag,9,Sep,Droog / zonnig,False,0.0,12,9.0,0.0,60,0,61.4,58.0,auto,groen
+1,Dinsdag,9,Sep,Lichte regen,False,0.9,20,9.0,0.0,82,0,63.3,58.0,auto,groen
+1,Dinsdag,9,Sep,Matige regen,False,2.5,30,9.0,0.0,90,2,63.3,58.0,auto,oranje
+1,Dinsdag,9,Sep,Zware regen,False,5.5,38,9.0,0.0,95,2,69.0,58.0,trein,oranje
+1,Dinsdag,9,Sep,Zware regen + wind,False,5.5,55,9.0,0.0,96,4,73.3,58.0,trein,oranje
+1,Dinsdag,9,Sep,Sneeuw,False,0.5,20,-1.5,3.0,96,4,64.9,58.0,auto,oranje
+1,Dinsdag,9,Sep,IJzel (vorst),False,0.0,10,-4.0,0.0,88,1,64.1,58.0,auto,groen
+1,Dinsdag,9,Sep,Storm (code rood),False,4.0,85,9.0,0.0,97,5,67.6,58.0,thuiswerken,rood
+1,Dinsdag,10,Okt,Droog / zonnig,False,0.0,12,5.0,0.0,60,0,61.4,58.0,auto,groen
+1,Dinsdag,10,Okt,Lichte regen,False,0.9,20,5.0,0.0,82,0,63.3,58.0,auto,groen
+1,Dinsdag,10,Okt,Matige regen,False,2.5,30,5.0,0.0,90,2,63.3,58.0,auto,oranje
+1,Dinsdag,10,Okt,Zware regen,False,5.5,38,5.0,0.0,95,2,69.0,58.0,trein,oranje
+1,Dinsdag,10,Okt,Zware regen + wind,False,5.5,55,5.0,0.0,96,4,73.3,58.0,trein,oranje
+1,Dinsdag,10,Okt,Sneeuw,False,0.5,20,-1.5,3.0,96,4,64.9,58.0,auto,oranje
+1,Dinsdag,10,Okt,IJzel (vorst),False,0.0,10,-4.0,0.0,88,1,64.1,58.0,auto,groen
+1,Dinsdag,10,Okt,Storm (code rood),False,4.0,85,5.0,0.0,97,5,67.6,58.0,thuiswerken,rood
+1,Dinsdag,11,Nov,Droog / zonnig,False,0.0,12,2.0,0.0,60,0,61.4,58.0,auto,groen
+1,Dinsdag,11,Nov,Lichte regen,False,0.9,20,2.0,0.0,82,0,63.3,58.0,auto,groen
+1,Dinsdag,11,Nov,Matige regen,False,2.5,30,2.0,0.0,90,2,63.3,58.0,auto,oranje
+1,Dinsdag,11,Nov,Zware regen,False,5.5,38,2.0,0.0,95,2,69.0,58.0,trein,oranje
+1,Dinsdag,11,Nov,Zware regen + wind,False,5.5,55,2.0,0.0,96,4,73.3,58.0,trein,oranje
+1,Dinsdag,11,Nov,Sneeuw,False,0.5,20,-1.5,3.0,96,4,64.9,58.0,auto,oranje
+1,Dinsdag,11,Nov,IJzel (vorst),False,0.0,10,-4.0,0.0,88,1,64.1,58.0,auto,groen
+1,Dinsdag,11,Nov,Storm (code rood),False,4.0,85,2.0,0.0,97,5,67.6,58.0,thuiswerken,rood
+1,Dinsdag,12,Dec,Droog / zonnig,False,0.0,12,0.5,0.0,60,0,61.4,58.0,auto,groen
+1,Dinsdag,12,Dec,Lichte regen,False,0.9,20,0.5,0.0,82,0,63.3,58.0,auto,groen
+1,Dinsdag,12,Dec,Matige regen,False,2.5,30,0.5,0.0,90,2,63.3,58.0,auto,oranje
+1,Dinsdag,12,Dec,Zware regen,False,5.5,38,0.5,0.0,95,2,69.0,58.0,trein,oranje
+1,Dinsdag,12,Dec,Zware regen + wind,False,5.5,55,0.5,0.0,96,4,73.3,58.0,trein,oranje
+1,Dinsdag,12,Dec,Sneeuw,False,0.5,20,-1.5,3.0,96,4,64.9,58.0,auto,oranje
+1,Dinsdag,12,Dec,IJzel (vorst),False,0.0,10,-4.0,0.0,88,1,64.1,58.0,auto,groen
+1,Dinsdag,12,Dec,Storm (code rood),False,4.0,85,0.5,0.0,97,5,67.6,58.0,thuiswerken,rood
+2,Woensdag,1,Jan,Droog / zonnig,False,0.0,12,1.0,0.0,60,0,54.7,58.0,auto,groen
+2,Woensdag,1,Jan,Lichte regen,False,0.9,20,1.0,0.0,82,0,56.6,58.0,auto,groen
+2,Woensdag,1,Jan,Matige regen,False,2.5,30,1.0,0.0,90,2,56.6,58.0,auto,oranje
+2,Woensdag,1,Jan,Zware regen,False,5.5,38,1.0,0.0,95,2,62.3,58.0,auto,oranje
+2,Woensdag,1,Jan,Zware regen + wind,False,5.5,55,1.0,0.0,96,4,66.6,58.0,auto,oranje
+2,Woensdag,1,Jan,Sneeuw,False,0.5,20,-1.5,3.0,96,4,58.2,58.0,auto,oranje
+2,Woensdag,1,Jan,IJzel (vorst),False,0.0,10,-4.0,0.0,88,1,57.4,58.0,auto,groen
+2,Woensdag,1,Jan,Storm (code rood),False,4.0,85,1.0,0.0,97,5,60.9,58.0,thuiswerken,rood
+2,Woensdag,2,Feb,Droog / zonnig,False,0.0,12,0.5,0.0,60,0,54.7,58.0,auto,groen
+2,Woensdag,2,Feb,Lichte regen,False,0.9,20,0.5,0.0,82,0,56.6,58.0,auto,groen
+2,Woensdag,2,Feb,Matige regen,False,2.5,30,0.5,0.0,90,2,56.6,58.0,auto,oranje
+2,Woensdag,2,Feb,Zware regen,False,5.5,38,0.5,0.0,95,2,62.3,58.0,auto,oranje
+2,Woensdag,2,Feb,Zware regen + wind,False,5.5,55,0.5,0.0,96,4,66.6,58.0,auto,oranje
+2,Woensdag,2,Feb,Sneeuw,False,0.5,20,-1.5,3.0,96,4,58.2,58.0,auto,oranje
+2,Woensdag,2,Feb,IJzel (vorst),False,0.0,10,-4.0,0.0,88,1,57.4,58.0,auto,groen
+2,Woensdag,2,Feb,Storm (code rood),False,4.0,85,0.5,0.0,97,5,60.9,58.0,thuiswerken,rood
+2,Woensdag,3,Mrt,Droog / zonnig,False,0.0,12,3.0,0.0,60,0,54.7,58.0,auto,groen
+2,Woensdag,3,Mrt,Lichte regen,False,0.9,20,3.0,0.0,82,0,56.6,58.0,auto,groen
+2,Woensdag,3,Mrt,Matige regen,False,2.5,30,3.0,0.0,90,2,56.6,58.0,auto,oranje
+2,Woensdag,3,Mrt,Zware regen,False,5.5,38,3.0,0.0,95,2,62.3,58.0,auto,oranje
+2,Woensdag,3,Mrt,Zware regen + wind,False,5.5,55,3.0,0.0,96,4,66.6,58.0,auto,oranje
+2,Woensdag,3,Mrt,Sneeuw,False,0.5,20,-1.5,3.0,96,4,58.2,58.0,auto,oranje
+2,Woensdag,3,Mrt,IJzel (vorst),False,0.0,10,-4.0,0.0,88,1,57.4,58.0,auto,groen
+2,Woensdag,3,Mrt,Storm (code rood),False,4.0,85,3.0,0.0,97,5,60.9,58.0,thuiswerken,rood
+2,Woensdag,4,Apr,Droog / zonnig,False,0.0,12,6.0,0.0,60,0,54.7,58.0,auto,groen
+2,Woensdag,4,Apr,Lichte regen,False,0.9,20,6.0,0.0,82,0,56.6,58.0,auto,groen
+2,Woensdag,4,Apr,Matige regen,False,2.5,30,6.0,0.0,90,2,56.6,58.0,auto,oranje
+2,Woensdag,4,Apr,Zware regen,False,5.5,38,6.0,0.0,95,2,62.3,58.0,auto,oranje
+2,Woensdag,4,Apr,Zware regen + wind,False,5.5,55,6.0,0.0,96,4,66.6,58.0,auto,oranje
+2,Woensdag,4,Apr,Sneeuw,False,0.5,20,-1.5,3.0,96,4,58.2,58.0,auto,oranje
+2,Woensdag,4,Apr,IJzel (vorst),False,0.0,10,-4.0,0.0,88,1,57.4,58.0,auto,groen
+2,Woensdag,4,Apr,Storm (code rood),False,4.0,85,6.0,0.0,97,5,60.9,58.0,thuiswerken,rood
+2,Woensdag,5,Mei,Droog / zonnig,False,0.0,12,9.0,0.0,60,0,54.7,58.0,auto,groen
+2,Woensdag,5,Mei,Lichte regen,False,0.9,20,9.0,0.0,82,0,56.6,58.0,auto,groen
+2,Woensdag,5,Mei,Matige regen,False,2.5,30,9.0,0.0,90,2,56.6,58.0,auto,oranje
+2,Woensdag,5,Mei,Zware regen,False,5.5,38,9.0,0.0,95,2,62.3,58.0,auto,oranje
+2,Woensdag,5,Mei,Zware regen + wind,False,5.5,55,9.0,0.0,96,4,66.6,58.0,auto,oranje
+2,Woensdag,5,Mei,Sneeuw,False,0.5,20,-1.5,3.0,96,4,58.2,58.0,auto,oranje
+2,Woensdag,5,Mei,IJzel (vorst),False,0.0,10,-4.0,0.0,88,1,57.4,58.0,auto,groen
+2,Woensdag,5,Mei,Storm (code rood),False,4.0,85,9.0,0.0,97,5,60.9,58.0,thuiswerken,rood
+2,Woensdag,6,Jun,Droog / zonnig,False,0.0,12,12.0,0.0,60,0,54.7,58.0,auto,groen
+2,Woensdag,6,Jun,Lichte regen,False,0.9,20,12.0,0.0,82,0,56.6,58.0,auto,groen
+2,Woensdag,6,Jun,Matige regen,False,2.5,30,12.0,0.0,90,2,56.6,58.0,auto,oranje
+2,Woensdag,6,Jun,Zware regen,False,5.5,38,12.0,0.0,95,2,62.3,58.0,auto,oranje
+2,Woensdag,6,Jun,Zware regen + wind,False,5.5,55,12.0,0.0,96,4,66.6,58.0,auto,oranje
+2,Woensdag,6,Jun,Sneeuw,False,0.5,20,-1.5,3.0,96,4,58.2,58.0,auto,oranje
+2,Woensdag,6,Jun,IJzel (vorst),False,0.0,10,-4.0,0.0,88,1,57.4,58.0,auto,groen
+2,Woensdag,6,Jun,Storm (code rood),False,4.0,85,12.0,0.0,97,5,60.9,58.0,thuiswerken,rood
+2,Woensdag,7,Jul,Droog / zonnig,True,0.0,12,15.0,0.0,60,0,46.5,58.0,auto,groen
+2,Woensdag,7,Jul,Lichte regen,True,0.9,20,15.0,0.0,82,0,48.1,58.0,auto,groen
+2,Woensdag,7,Jul,Matige regen,True,2.5,30,15.0,0.0,90,2,48.1,58.0,auto,oranje
+2,Woensdag,7,Jul,Zware regen,True,5.5,38,15.0,0.0,95,2,53.0,58.0,auto,oranje
+2,Woensdag,7,Jul,Zware regen + wind,True,5.5,55,15.0,0.0,96,4,56.6,58.0,auto,oranje
+2,Woensdag,7,Jul,Sneeuw,True,0.5,20,-1.5,3.0,96,4,49.5,58.0,auto,oranje
+2,Woensdag,7,Jul,IJzel (vorst),True,0.0,10,-4.0,0.0,88,1,48.8,58.0,auto,groen
+2,Woensdag,7,Jul,Storm (code rood),True,4.0,85,15.0,0.0,97,5,51.8,58.0,thuiswerken,rood
+2,Woensdag,8,Aug,Droog / zonnig,True,0.0,12,14.0,0.0,60,0,46.5,58.0,auto,groen
+2,Woensdag,8,Aug,Lichte regen,True,0.9,20,14.0,0.0,82,0,48.1,58.0,auto,groen
+2,Woensdag,8,Aug,Matige regen,True,2.5,30,14.0,0.0,90,2,48.1,58.0,auto,oranje
+2,Woensdag,8,Aug,Zware regen,True,5.5,38,14.0,0.0,95,2,53.0,58.0,auto,oranje
+2,Woensdag,8,Aug,Zware regen + wind,True,5.5,55,14.0,0.0,96,4,56.6,58.0,auto,oranje
+2,Woensdag,8,Aug,Sneeuw,True,0.5,20,-1.5,3.0,96,4,49.5,58.0,auto,oranje
+2,Woensdag,8,Aug,IJzel (vorst),True,0.0,10,-4.0,0.0,88,1,48.8,58.0,auto,groen
+2,Woensdag,8,Aug,Storm (code rood),True,4.0,85,14.0,0.0,97,5,51.8,58.0,thuiswerken,rood
+2,Woensdag,9,Sep,Droog / zonnig,False,0.0,12,9.0,0.0,60,0,54.7,58.0,auto,groen
+2,Woensdag,9,Sep,Lichte regen,False,0.9,20,9.0,0.0,82,0,56.6,58.0,auto,groen
+2,Woensdag,9,Sep,Matige regen,False,2.5,30,9.0,0.0,90,2,56.6,58.0,auto,oranje
+2,Woensdag,9,Sep,Zware regen,False,5.5,38,9.0,0.0,95,2,62.3,58.0,auto,oranje
+2,Woensdag,9,Sep,Zware regen + wind,False,5.5,55,9.0,0.0,96,4,66.6,58.0,auto,oranje
+2,Woensdag,9,Sep,Sneeuw,False,0.5,20,-1.5,3.0,96,4,58.2,58.0,auto,oranje
+2,Woensdag,9,Sep,IJzel (vorst),False,0.0,10,-4.0,0.0,88,1,57.4,58.0,auto,groen
+2,Woensdag,9,Sep,Storm (code rood),False,4.0,85,9.0,0.0,97,5,60.9,58.0,thuiswerken,rood
+2,Woensdag,10,Okt,Droog / zonnig,False,0.0,12,5.0,0.0,60,0,54.7,58.0,auto,groen
+2,Woensdag,10,Okt,Lichte regen,False,0.9,20,5.0,0.0,82,0,56.6,58.0,auto,groen
+2,Woensdag,10,Okt,Matige regen,False,2.5,30,5.0,0.0,90,2,56.6,58.0,auto,oranje
+2,Woensdag,10,Okt,Zware regen,False,5.5,38,5.0,0.0,95,2,62.3,58.0,auto,oranje
+2,Woensdag,10,Okt,Zware regen + wind,False,5.5,55,5.0,0.0,96,4,66.6,58.0,auto,oranje
+2,Woensdag,10,Okt,Sneeuw,False,0.5,20,-1.5,3.0,96,4,58.2,58.0,auto,oranje
+2,Woensdag,10,Okt,IJzel (vorst),False,0.0,10,-4.0,0.0,88,1,57.4,58.0,auto,groen
+2,Woensdag,10,Okt,Storm (code rood),False,4.0,85,5.0,0.0,97,5,60.9,58.0,thuiswerken,rood
+2,Woensdag,11,Nov,Droog / zonnig,False,0.0,12,2.0,0.0,60,0,54.7,58.0,auto,groen
+2,Woensdag,11,Nov,Lichte regen,False,0.9,20,2.0,0.0,82,0,56.6,58.0,auto,groen
+2,Woensdag,11,Nov,Matige regen,False,2.5,30,2.0,0.0,90,2,56.6,58.0,auto,oranje
+2,Woensdag,11,Nov,Zware regen,False,5.5,38,2.0,0.0,95,2,62.3,58.0,auto,oranje
+2,Woensdag,11,Nov,Zware regen + wind,False,5.5,55,2.0,0.0,96,4,66.6,58.0,auto,oranje
+2,Woensdag,11,Nov,Sneeuw,False,0.5,20,-1.5,3.0,96,4,58.2,58.0,auto,oranje
+2,Woensdag,11,Nov,IJzel (vorst),False,0.0,10,-4.0,0.0,88,1,57.4,58.0,auto,groen
+2,Woensdag,11,Nov,Storm (code rood),False,4.0,85,2.0,0.0,97,5,60.9,58.0,thuiswerken,rood
+2,Woensdag,12,Dec,Droog / zonnig,False,0.0,12,0.5,0.0,60,0,54.7,58.0,auto,groen
+2,Woensdag,12,Dec,Lichte regen,False,0.9,20,0.5,0.0,82,0,56.6,58.0,auto,groen
+2,Woensdag,12,Dec,Matige regen,False,2.5,30,0.5,0.0,90,2,56.6,58.0,auto,oranje
+2,Woensdag,12,Dec,Zware regen,False,5.5,38,0.5,0.0,95,2,62.3,58.0,auto,oranje
+2,Woensdag,12,Dec,Zware regen + wind,False,5.5,55,0.5,0.0,96,4,66.6,58.0,auto,oranje
+2,Woensdag,12,Dec,Sneeuw,False,0.5,20,-1.5,3.0,96,4,58.2,58.0,auto,oranje
+2,Woensdag,12,Dec,IJzel (vorst),False,0.0,10,-4.0,0.0,88,1,57.4,58.0,auto,groen
+2,Woensdag,12,Dec,Storm (code rood),False,4.0,85,0.5,0.0,97,5,60.9,58.0,thuiswerken,rood
+3,Donderdag,1,Jan,Droog / zonnig,False,0.0,12,1.0,0.0,60,0,69.5,58.0,trein,oranje
+3,Donderdag,1,Jan,Lichte regen,False,0.9,20,1.0,0.0,82,0,71.3,58.0,trein,oranje
+3,Donderdag,1,Jan,Matige regen,False,2.5,30,1.0,0.0,90,2,71.3,58.0,trein,oranje
+3,Donderdag,1,Jan,Zware regen,False,5.5,38,1.0,0.0,95,2,77.0,58.0,trein,oranje
+3,Donderdag,1,Jan,Zware regen + wind,False,5.5,55,1.0,0.0,96,4,81.3,58.0,trein,oranje
+3,Donderdag,1,Jan,Sneeuw,False,0.5,20,-1.5,3.0,96,4,72.9,58.0,trein,oranje
+3,Donderdag,1,Jan,IJzel (vorst),False,0.0,10,-4.0,0.0,88,1,72.2,58.0,trein,oranje
+3,Donderdag,1,Jan,Storm (code rood),False,4.0,85,1.0,0.0,97,5,75.6,58.0,thuiswerken,rood
+3,Donderdag,2,Feb,Droog / zonnig,False,0.0,12,0.5,0.0,60,0,69.5,58.0,trein,oranje
+3,Donderdag,2,Feb,Lichte regen,False,0.9,20,0.5,0.0,82,0,71.3,58.0,trein,oranje
+3,Donderdag,2,Feb,Matige regen,False,2.5,30,0.5,0.0,90,2,71.3,58.0,trein,oranje
+3,Donderdag,2,Feb,Zware regen,False,5.5,38,0.5,0.0,95,2,77.0,58.0,trein,oranje
+3,Donderdag,2,Feb,Zware regen + wind,False,5.5,55,0.5,0.0,96,4,81.3,58.0,trein,oranje
+3,Donderdag,2,Feb,Sneeuw,False,0.5,20,-1.5,3.0,96,4,72.9,58.0,trein,oranje
+3,Donderdag,2,Feb,IJzel (vorst),False,0.0,10,-4.0,0.0,88,1,72.2,58.0,trein,oranje
+3,Donderdag,2,Feb,Storm (code rood),False,4.0,85,0.5,0.0,97,5,75.6,58.0,thuiswerken,rood
+3,Donderdag,3,Mrt,Droog / zonnig,False,0.0,12,3.0,0.0,60,0,69.5,58.0,trein,oranje
+3,Donderdag,3,Mrt,Lichte regen,False,0.9,20,3.0,0.0,82,0,71.3,58.0,trein,oranje
+3,Donderdag,3,Mrt,Matige regen,False,2.5,30,3.0,0.0,90,2,71.3,58.0,trein,oranje
+3,Donderdag,3,Mrt,Zware regen,False,5.5,38,3.0,0.0,95,2,77.0,58.0,trein,oranje
+3,Donderdag,3,Mrt,Zware regen + wind,False,5.5,55,3.0,0.0,96,4,81.3,58.0,trein,oranje
+3,Donderdag,3,Mrt,Sneeuw,False,0.5,20,-1.5,3.0,96,4,72.9,58.0,trein,oranje
+3,Donderdag,3,Mrt,IJzel (vorst),False,0.0,10,-4.0,0.0,88,1,72.2,58.0,trein,oranje
+3,Donderdag,3,Mrt,Storm (code rood),False,4.0,85,3.0,0.0,97,5,75.6,58.0,thuiswerken,rood
+3,Donderdag,4,Apr,Droog / zonnig,False,0.0,12,6.0,0.0,60,0,69.5,58.0,trein,oranje
+3,Donderdag,4,Apr,Lichte regen,False,0.9,20,6.0,0.0,82,0,71.3,58.0,trein,oranje
+3,Donderdag,4,Apr,Matige regen,False,2.5,30,6.0,0.0,90,2,71.3,58.0,trein,oranje
+3,Donderdag,4,Apr,Zware regen,False,5.5,38,6.0,0.0,95,2,77.0,58.0,trein,oranje
+3,Donderdag,4,Apr,Zware regen + wind,False,5.5,55,6.0,0.0,96,4,81.3,58.0,trein,oranje
+3,Donderdag,4,Apr,Sneeuw,False,0.5,20,-1.5,3.0,96,4,72.9,58.0,trein,oranje
+3,Donderdag,4,Apr,IJzel (vorst),False,0.0,10,-4.0,0.0,88,1,72.2,58.0,trein,oranje
+3,Donderdag,4,Apr,Storm (code rood),False,4.0,85,6.0,0.0,97,5,75.6,58.0,thuiswerken,rood
+3,Donderdag,5,Mei,Droog / zonnig,False,0.0,12,9.0,0.0,60,0,69.5,58.0,trein,oranje
+3,Donderdag,5,Mei,Lichte regen,False,0.9,20,9.0,0.0,82,0,71.3,58.0,trein,oranje
+3,Donderdag,5,Mei,Matige regen,False,2.5,30,9.0,0.0,90,2,71.3,58.0,trein,oranje
+3,Donderdag,5,Mei,Zware regen,False,5.5,38,9.0,0.0,95,2,77.0,58.0,trein,oranje
+3,Donderdag,5,Mei,Zware regen + wind,False,5.5,55,9.0,0.0,96,4,81.3,58.0,trein,oranje
+3,Donderdag,5,Mei,Sneeuw,False,0.5,20,-1.5,3.0,96,4,72.9,58.0,trein,oranje
+3,Donderdag,5,Mei,IJzel (vorst),False,0.0,10,-4.0,0.0,88,1,72.2,58.0,trein,oranje
+3,Donderdag,5,Mei,Storm (code rood),False,4.0,85,9.0,0.0,97,5,75.6,58.0,thuiswerken,rood
+3,Donderdag,6,Jun,Droog / zonnig,False,0.0,12,12.0,0.0,60,0,69.5,58.0,trein,oranje
+3,Donderdag,6,Jun,Lichte regen,False,0.9,20,12.0,0.0,82,0,71.3,58.0,trein,oranje
+3,Donderdag,6,Jun,Matige regen,False,2.5,30,12.0,0.0,90,2,71.3,58.0,trein,oranje
+3,Donderdag,6,Jun,Zware regen,False,5.5,38,12.0,0.0,95,2,77.0,58.0,trein,oranje
+3,Donderdag,6,Jun,Zware regen + wind,False,5.5,55,12.0,0.0,96,4,81.3,58.0,trein,oranje
+3,Donderdag,6,Jun,Sneeuw,False,0.5,20,-1.5,3.0,96,4,72.9,58.0,trein,oranje
+3,Donderdag,6,Jun,IJzel (vorst),False,0.0,10,-4.0,0.0,88,1,72.2,58.0,trein,oranje
+3,Donderdag,6,Jun,Storm (code rood),False,4.0,85,12.0,0.0,97,5,75.6,58.0,thuiswerken,rood
+3,Donderdag,7,Jul,Droog / zonnig,True,0.0,12,15.0,0.0,60,0,59.1,58.0,auto,groen
+3,Donderdag,7,Jul,Lichte regen,True,0.9,20,15.0,0.0,82,0,60.6,58.0,auto,groen
+3,Donderdag,7,Jul,Matige regen,True,2.5,30,15.0,0.0,90,2,60.6,58.0,auto,oranje
+3,Donderdag,7,Jul,Zware regen,True,5.5,38,15.0,0.0,95,2,65.5,58.0,auto,oranje
+3,Donderdag,7,Jul,Zware regen + wind,True,5.5,55,15.0,0.0,96,4,69.1,58.0,trein,oranje
+3,Donderdag,7,Jul,Sneeuw,True,0.5,20,-1.5,3.0,96,4,62.0,58.0,auto,oranje
+3,Donderdag,7,Jul,IJzel (vorst),True,0.0,10,-4.0,0.0,88,1,61.4,58.0,auto,groen
+3,Donderdag,7,Jul,Storm (code rood),True,4.0,85,15.0,0.0,97,5,64.3,58.0,thuiswerken,rood
+3,Donderdag,8,Aug,Droog / zonnig,True,0.0,12,14.0,0.0,60,0,59.1,58.0,auto,groen
+3,Donderdag,8,Aug,Lichte regen,True,0.9,20,14.0,0.0,82,0,60.6,58.0,auto,groen
+3,Donderdag,8,Aug,Matige regen,True,2.5,30,14.0,0.0,90,2,60.6,58.0,auto,oranje
+3,Donderdag,8,Aug,Zware regen,True,5.5,38,14.0,0.0,95,2,65.5,58.0,auto,oranje
+3,Donderdag,8,Aug,Zware regen + wind,True,5.5,55,14.0,0.0,96,4,69.1,58.0,trein,oranje
+3,Donderdag,8,Aug,Sneeuw,True,0.5,20,-1.5,3.0,96,4,62.0,58.0,auto,oranje
+3,Donderdag,8,Aug,IJzel (vorst),True,0.0,10,-4.0,0.0,88,1,61.4,58.0,auto,groen
+3,Donderdag,8,Aug,Storm (code rood),True,4.0,85,14.0,0.0,97,5,64.3,58.0,thuiswerken,rood
+3,Donderdag,9,Sep,Droog / zonnig,False,0.0,12,9.0,0.0,60,0,69.5,58.0,trein,oranje
+3,Donderdag,9,Sep,Lichte regen,False,0.9,20,9.0,0.0,82,0,71.3,58.0,trein,oranje
+3,Donderdag,9,Sep,Matige regen,False,2.5,30,9.0,0.0,90,2,71.3,58.0,trein,oranje
+3,Donderdag,9,Sep,Zware regen,False,5.5,38,9.0,0.0,95,2,77.0,58.0,trein,oranje
+3,Donderdag,9,Sep,Zware regen + wind,False,5.5,55,9.0,0.0,96,4,81.3,58.0,trein,oranje
+3,Donderdag,9,Sep,Sneeuw,False,0.5,20,-1.5,3.0,96,4,72.9,58.0,trein,oranje
+3,Donderdag,9,Sep,IJzel (vorst),False,0.0,10,-4.0,0.0,88,1,72.2,58.0,trein,oranje
+3,Donderdag,9,Sep,Storm (code rood),False,4.0,85,9.0,0.0,97,5,75.6,58.0,thuiswerken,rood
+3,Donderdag,10,Okt,Droog / zonnig,False,0.0,12,5.0,0.0,60,0,69.5,58.0,trein,oranje
+3,Donderdag,10,Okt,Lichte regen,False,0.9,20,5.0,0.0,82,0,71.3,58.0,trein,oranje
+3,Donderdag,10,Okt,Matige regen,False,2.5,30,5.0,0.0,90,2,71.3,58.0,trein,oranje
+3,Donderdag,10,Okt,Zware regen,False,5.5,38,5.0,0.0,95,2,77.0,58.0,trein,oranje
+3,Donderdag,10,Okt,Zware regen + wind,False,5.5,55,5.0,0.0,96,4,81.3,58.0,trein,oranje
+3,Donderdag,10,Okt,Sneeuw,False,0.5,20,-1.5,3.0,96,4,72.9,58.0,trein,oranje
+3,Donderdag,10,Okt,IJzel (vorst),False,0.0,10,-4.0,0.0,88,1,72.2,58.0,trein,oranje
+3,Donderdag,10,Okt,Storm (code rood),False,4.0,85,5.0,0.0,97,5,75.6,58.0,thuiswerken,rood
+3,Donderdag,11,Nov,Droog / zonnig,False,0.0,12,2.0,0.0,60,0,69.5,58.0,trein,oranje
+3,Donderdag,11,Nov,Lichte regen,False,0.9,20,2.0,0.0,82,0,71.3,58.0,trein,oranje
+3,Donderdag,11,Nov,Matige regen,False,2.5,30,2.0,0.0,90,2,71.3,58.0,trein,oranje
+3,Donderdag,11,Nov,Zware regen,False,5.5,38,2.0,0.0,95,2,77.0,58.0,trein,oranje
+3,Donderdag,11,Nov,Zware regen + wind,False,5.5,55,2.0,0.0,96,4,81.3,58.0,trein,oranje
+3,Donderdag,11,Nov,Sneeuw,False,0.5,20,-1.5,3.0,96,4,72.9,58.0,trein,oranje
+3,Donderdag,11,Nov,IJzel (vorst),False,0.0,10,-4.0,0.0,88,1,72.2,58.0,trein,oranje
+3,Donderdag,11,Nov,Storm (code rood),False,4.0,85,2.0,0.0,97,5,75.6,58.0,thuiswerken,rood
+3,Donderdag,12,Dec,Droog / zonnig,False,0.0,12,0.5,0.0,60,0,69.5,58.0,trein,oranje
+3,Donderdag,12,Dec,Lichte regen,False,0.9,20,0.5,0.0,82,0,71.3,58.0,trein,oranje
+3,Donderdag,12,Dec,Matige regen,False,2.5,30,0.5,0.0,90,2,71.3,58.0,trein,oranje
+3,Donderdag,12,Dec,Zware regen,False,5.5,38,0.5,0.0,95,2,77.0,58.0,trein,oranje
+3,Donderdag,12,Dec,Zware regen + wind,False,5.5,55,0.5,0.0,96,4,81.3,58.0,trein,oranje
+3,Donderdag,12,Dec,Sneeuw,False,0.5,20,-1.5,3.0,96,4,72.9,58.0,trein,oranje
+3,Donderdag,12,Dec,IJzel (vorst),False,0.0,10,-4.0,0.0,88,1,72.2,58.0,trein,oranje
+3,Donderdag,12,Dec,Storm (code rood),False,4.0,85,0.5,0.0,97,5,75.6,58.0,thuiswerken,rood
+4,Vrijdag,1,Jan,Droog / zonnig,False,0.0,12,1.0,0.0,60,0,57.9,58.0,auto,groen
+4,Vrijdag,1,Jan,Lichte regen,False,0.9,20,1.0,0.0,82,0,59.8,58.0,auto,groen
+4,Vrijdag,1,Jan,Matige regen,False,2.5,30,1.0,0.0,90,2,59.8,58.0,auto,oranje
+4,Vrijdag,1,Jan,Zware regen,False,5.5,38,1.0,0.0,95,2,65.5,58.0,auto,oranje
+4,Vrijdag,1,Jan,Zware regen + wind,False,5.5,55,1.0,0.0,96,4,69.7,58.0,trein,oranje
+4,Vrijdag,1,Jan,Sneeuw,False,0.5,20,-1.5,3.0,96,4,61.3,58.0,auto,oranje
+4,Vrijdag,1,Jan,IJzel (vorst),False,0.0,10,-4.0,0.0,88,1,60.6,58.0,auto,groen
+4,Vrijdag,1,Jan,Storm (code rood),False,4.0,85,1.0,0.0,97,5,64.0,58.0,thuiswerken,rood
+4,Vrijdag,2,Feb,Droog / zonnig,False,0.0,12,0.5,0.0,60,0,57.9,58.0,auto,groen
+4,Vrijdag,2,Feb,Lichte regen,False,0.9,20,0.5,0.0,82,0,59.8,58.0,auto,groen
+4,Vrijdag,2,Feb,Matige regen,False,2.5,30,0.5,0.0,90,2,59.8,58.0,auto,oranje
+4,Vrijdag,2,Feb,Zware regen,False,5.5,38,0.5,0.0,95,2,65.5,58.0,auto,oranje
+4,Vrijdag,2,Feb,Zware regen + wind,False,5.5,55,0.5,0.0,96,4,69.7,58.0,trein,oranje
+4,Vrijdag,2,Feb,Sneeuw,False,0.5,20,-1.5,3.0,96,4,61.3,58.0,auto,oranje
+4,Vrijdag,2,Feb,IJzel (vorst),False,0.0,10,-4.0,0.0,88,1,60.6,58.0,auto,groen
+4,Vrijdag,2,Feb,Storm (code rood),False,4.0,85,0.5,0.0,97,5,64.0,58.0,thuiswerken,rood
+4,Vrijdag,3,Mrt,Droog / zonnig,False,0.0,12,3.0,0.0,60,0,57.9,58.0,auto,groen
+4,Vrijdag,3,Mrt,Lichte regen,False,0.9,20,3.0,0.0,82,0,59.8,58.0,auto,groen
+4,Vrijdag,3,Mrt,Matige regen,False,2.5,30,3.0,0.0,90,2,59.8,58.0,auto,oranje
+4,Vrijdag,3,Mrt,Zware regen,False,5.5,38,3.0,0.0,95,2,65.5,58.0,auto,oranje
+4,Vrijdag,3,Mrt,Zware regen + wind,False,5.5,55,3.0,0.0,96,4,69.7,58.0,trein,oranje
+4,Vrijdag,3,Mrt,Sneeuw,False,0.5,20,-1.5,3.0,96,4,61.3,58.0,auto,oranje
+4,Vrijdag,3,Mrt,IJzel (vorst),False,0.0,10,-4.0,0.0,88,1,60.6,58.0,auto,groen
+4,Vrijdag,3,Mrt,Storm (code rood),False,4.0,85,3.0,0.0,97,5,64.0,58.0,thuiswerken,rood
+4,Vrijdag,4,Apr,Droog / zonnig,False,0.0,12,6.0,0.0,60,0,57.9,58.0,auto,groen
+4,Vrijdag,4,Apr,Lichte regen,False,0.9,20,6.0,0.0,82,0,59.8,58.0,auto,groen
+4,Vrijdag,4,Apr,Matige regen,False,2.5,30,6.0,0.0,90,2,59.8,58.0,auto,oranje
+4,Vrijdag,4,Apr,Zware regen,False,5.5,38,6.0,0.0,95,2,65.5,58.0,auto,oranje
+4,Vrijdag,4,Apr,Zware regen + wind,False,5.5,55,6.0,0.0,96,4,69.7,58.0,trein,oranje
+4,Vrijdag,4,Apr,Sneeuw,False,0.5,20,-1.5,3.0,96,4,61.3,58.0,auto,oranje
+4,Vrijdag,4,Apr,IJzel (vorst),False,0.0,10,-4.0,0.0,88,1,60.6,58.0,auto,groen
+4,Vrijdag,4,Apr,Storm (code rood),False,4.0,85,6.0,0.0,97,5,64.0,58.0,thuiswerken,rood
+4,Vrijdag,5,Mei,Droog / zonnig,False,0.0,12,9.0,0.0,60,0,57.9,58.0,auto,groen
+4,Vrijdag,5,Mei,Lichte regen,False,0.9,20,9.0,0.0,82,0,59.8,58.0,auto,groen
+4,Vrijdag,5,Mei,Matige regen,False,2.5,30,9.0,0.0,90,2,59.8,58.0,auto,oranje
+4,Vrijdag,5,Mei,Zware regen,False,5.5,38,9.0,0.0,95,2,65.5,58.0,auto,oranje
+4,Vrijdag,5,Mei,Zware regen + wind,False,5.5,55,9.0,0.0,96,4,69.7,58.0,trein,oranje
+4,Vrijdag,5,Mei,Sneeuw,False,0.5,20,-1.5,3.0,96,4,61.3,58.0,auto,oranje
+4,Vrijdag,5,Mei,IJzel (vorst),False,0.0,10,-4.0,0.0,88,1,60.6,58.0,auto,groen
+4,Vrijdag,5,Mei,Storm (code rood),False,4.0,85,9.0,0.0,97,5,64.0,58.0,thuiswerken,rood
+4,Vrijdag,6,Jun,Droog / zonnig,False,0.0,12,12.0,0.0,60,0,57.9,58.0,auto,groen
+4,Vrijdag,6,Jun,Lichte regen,False,0.9,20,12.0,0.0,82,0,59.8,58.0,auto,groen
+4,Vrijdag,6,Jun,Matige regen,False,2.5,30,12.0,0.0,90,2,59.8,58.0,auto,oranje
+4,Vrijdag,6,Jun,Zware regen,False,5.5,38,12.0,0.0,95,2,65.5,58.0,auto,oranje
+4,Vrijdag,6,Jun,Zware regen + wind,False,5.5,55,12.0,0.0,96,4,69.7,58.0,trein,oranje
+4,Vrijdag,6,Jun,Sneeuw,False,0.5,20,-1.5,3.0,96,4,61.3,58.0,auto,oranje
+4,Vrijdag,6,Jun,IJzel (vorst),False,0.0,10,-4.0,0.0,88,1,60.6,58.0,auto,groen
+4,Vrijdag,6,Jun,Storm (code rood),False,4.0,85,12.0,0.0,97,5,64.0,58.0,thuiswerken,rood
+4,Vrijdag,7,Jul,Droog / zonnig,True,0.0,12,15.0,0.0,60,0,49.2,58.0,auto,groen
+4,Vrijdag,7,Jul,Lichte regen,True,0.9,20,15.0,0.0,82,0,50.8,58.0,auto,groen
+4,Vrijdag,7,Jul,Matige regen,True,2.5,30,15.0,0.0,90,2,50.8,58.0,auto,oranje
+4,Vrijdag,7,Jul,Zware regen,True,5.5,38,15.0,0.0,95,2,55.7,58.0,auto,oranje
+4,Vrijdag,7,Jul,Zware regen + wind,True,5.5,55,15.0,0.0,96,4,59.2,58.0,auto,oranje
+4,Vrijdag,7,Jul,Sneeuw,True,0.5,20,-1.5,3.0,96,4,52.1,58.0,auto,oranje
+4,Vrijdag,7,Jul,IJzel (vorst),True,0.0,10,-4.0,0.0,88,1,51.5,58.0,auto,groen
+4,Vrijdag,7,Jul,Storm (code rood),True,4.0,85,15.0,0.0,97,5,54.4,58.0,thuiswerken,rood
+4,Vrijdag,8,Aug,Droog / zonnig,True,0.0,12,14.0,0.0,60,0,49.2,58.0,auto,groen
+4,Vrijdag,8,Aug,Lichte regen,True,0.9,20,14.0,0.0,82,0,50.8,58.0,auto,groen
+4,Vrijdag,8,Aug,Matige regen,True,2.5,30,14.0,0.0,90,2,50.8,58.0,auto,oranje
+4,Vrijdag,8,Aug,Zware regen,True,5.5,38,14.0,0.0,95,2,55.7,58.0,auto,oranje
+4,Vrijdag,8,Aug,Zware regen + wind,True,5.5,55,14.0,0.0,96,4,59.2,58.0,auto,oranje
+4,Vrijdag,8,Aug,Sneeuw,True,0.5,20,-1.5,3.0,96,4,52.1,58.0,auto,oranje
+4,Vrijdag,8,Aug,IJzel (vorst),True,0.0,10,-4.0,0.0,88,1,51.5,58.0,auto,groen
+4,Vrijdag,8,Aug,Storm (code rood),True,4.0,85,14.0,0.0,97,5,54.4,58.0,thuiswerken,rood
+4,Vrijdag,9,Sep,Droog / zonnig,False,0.0,12,9.0,0.0,60,0,57.9,58.0,auto,groen
+4,Vrijdag,9,Sep,Lichte regen,False,0.9,20,9.0,0.0,82,0,59.8,58.0,auto,groen
+4,Vrijdag,9,Sep,Matige regen,False,2.5,30,9.0,0.0,90,2,59.8,58.0,auto,oranje
+4,Vrijdag,9,Sep,Zware regen,False,5.5,38,9.0,0.0,95,2,65.5,58.0,auto,oranje
+4,Vrijdag,9,Sep,Zware regen + wind,False,5.5,55,9.0,0.0,96,4,69.7,58.0,trein,oranje
+4,Vrijdag,9,Sep,Sneeuw,False,0.5,20,-1.5,3.0,96,4,61.3,58.0,auto,oranje
+4,Vrijdag,9,Sep,IJzel (vorst),False,0.0,10,-4.0,0.0,88,1,60.6,58.0,auto,groen
+4,Vrijdag,9,Sep,Storm (code rood),False,4.0,85,9.0,0.0,97,5,64.0,58.0,thuiswerken,rood
+4,Vrijdag,10,Okt,Droog / zonnig,False,0.0,12,5.0,0.0,60,0,57.9,58.0,auto,groen
+4,Vrijdag,10,Okt,Lichte regen,False,0.9,20,5.0,0.0,82,0,59.8,58.0,auto,groen
+4,Vrijdag,10,Okt,Matige regen,False,2.5,30,5.0,0.0,90,2,59.8,58.0,auto,oranje
+4,Vrijdag,10,Okt,Zware regen,False,5.5,38,5.0,0.0,95,2,65.5,58.0,auto,oranje
+4,Vrijdag,10,Okt,Zware regen + wind,False,5.5,55,5.0,0.0,96,4,69.7,58.0,trein,oranje
+4,Vrijdag,10,Okt,Sneeuw,False,0.5,20,-1.5,3.0,96,4,61.3,58.0,auto,oranje
+4,Vrijdag,10,Okt,IJzel (vorst),False,0.0,10,-4.0,0.0,88,1,60.6,58.0,auto,groen
+4,Vrijdag,10,Okt,Storm (code rood),False,4.0,85,5.0,0.0,97,5,64.0,58.0,thuiswerken,rood
+4,Vrijdag,11,Nov,Droog / zonnig,False,0.0,12,2.0,0.0,60,0,57.9,58.0,auto,groen
+4,Vrijdag,11,Nov,Lichte regen,False,0.9,20,2.0,0.0,82,0,59.8,58.0,auto,groen
+4,Vrijdag,11,Nov,Matige regen,False,2.5,30,2.0,0.0,90,2,59.8,58.0,auto,oranje
+4,Vrijdag,11,Nov,Zware regen,False,5.5,38,2.0,0.0,95,2,65.5,58.0,auto,oranje
+4,Vrijdag,11,Nov,Zware regen + wind,False,5.5,55,2.0,0.0,96,4,69.7,58.0,trein,oranje
+4,Vrijdag,11,Nov,Sneeuw,False,0.5,20,-1.5,3.0,96,4,61.3,58.0,auto,oranje
+4,Vrijdag,11,Nov,IJzel (vorst),False,0.0,10,-4.0,0.0,88,1,60.6,58.0,auto,groen
+4,Vrijdag,11,Nov,Storm (code rood),False,4.0,85,2.0,0.0,97,5,64.0,58.0,thuiswerken,rood
+4,Vrijdag,12,Dec,Droog / zonnig,False,0.0,12,0.5,0.0,60,0,57.9,58.0,auto,groen
+4,Vrijdag,12,Dec,Lichte regen,False,0.9,20,0.5,0.0,82,0,59.8,58.0,auto,groen
+4,Vrijdag,12,Dec,Matige regen,False,2.5,30,0.5,0.0,90,2,59.8,58.0,auto,oranje
+4,Vrijdag,12,Dec,Zware regen,False,5.5,38,0.5,0.0,95,2,65.5,58.0,auto,oranje
+4,Vrijdag,12,Dec,Zware regen + wind,False,5.5,55,0.5,0.0,96,4,69.7,58.0,trein,oranje
+4,Vrijdag,12,Dec,Sneeuw,False,0.5,20,-1.5,3.0,96,4,61.3,58.0,auto,oranje
+4,Vrijdag,12,Dec,IJzel (vorst),False,0.0,10,-4.0,0.0,88,1,60.6,58.0,auto,groen
+4,Vrijdag,12,Dec,Storm (code rood),False,4.0,85,0.5,0.0,97,5,64.0,58.0,thuiswerken,rood
+0,Maandag,1,Jan,Feestdag,False,0.5,15,8.0,0.0,75,0,,58.0,thuiswerken,groen
+0,Maandag,5,Mei,Feestdag,False,0.5,15,8.0,0.0,75,0,,58.0,thuiswerken,groen
+0,Maandag,7,Jul,Feestdag,False,0.5,15,8.0,0.0,75,0,,58.0,thuiswerken,groen
+0,Maandag,8,Aug,Feestdag,False,0.5,15,8.0,0.0,75,0,,58.0,thuiswerken,groen
+0,Maandag,11,Nov,Feestdag,False,0.5,15,8.0,0.0,75,0,,58.0,thuiswerken,groen
