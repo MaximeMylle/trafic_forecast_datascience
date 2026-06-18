@@ -502,7 +502,7 @@ def slide_infrabel_weekdag(prs, img_dir):
     add_text_box(slide, "TREIN INZICHTEN", Inches(8.9), Inches(1.35),
                  Inches(4.0), Inches(0.35), font_size=11, bold=True, color=C_TEAL)
     insights = [
-        "Dinsdag & donderdag = hoogste vertragingen",
+        "Maandag & donderdag = hoogste vertragingen (Infrabel data)",
         "Beide modi (auto & trein) zijn tegelijk belast op piekmomenten",
         "On-time rate varieert sterk per maand (winter = slechter)",
         "Annuleringspercentage laag maar merkbaar bij extreme weer",
@@ -560,6 +560,43 @@ def slide_auto(prs, img_dir):
                  font_size=12, bold=True, color=C_WHITE)
 
 
+def slide_factor_calibratie(prs, img_dir):
+    """Slide 11 — Factor Kalibratie (uit echte data)"""
+    slide = prs.slides.add_slide(prs.slide_layouts[6])
+    set_bg(slide, C_BG)
+    heading(slide, "Weekdag- & Weerfactoren — Afgeleid uit Historische Data")
+
+    # left: methodology summary
+    panel_box(slide, Inches(0.45), Inches(1.2), Inches(4.8), Inches(5.8))
+    add_text_box(slide, "Methode",
+                 Inches(0.65), Inches(1.3), Inches(4.5), Inches(0.4),
+                 font_size=14, bold=True, color=C_TEAL)
+    method_items = [
+        "Weekdagfactoren ← Infrabel gemiddelde aankomstvertraging per dag (1 359 echte ritten)",
+        "Verschuif-normaliseer zodat gemiddelde = 1,0",
+        "Weerfactoren ← VC seizoensdemontage (53 maanden) + Infrabel dagdata als fallback",
+        "Auto-gevoeligheid × 2,0 t.o.v. trein (wegoppervlak vs. spoor)",
+        "Monotoniciteitsbewaking per weergroep",
+    ]
+    bullet_tf(slide, method_items, Inches(0.65), Inches(1.8), Inches(4.5), Inches(3.0),
+              font_size=12)
+
+    add_rect(slide, Inches(0.45), Inches(5.2), Inches(4.8), Inches(0.06), C_ORANGE)
+    add_text_box(slide, "Sleutelbevinding",
+                 Inches(0.65), Inches(5.35), Inches(4.5), Inches(0.35),
+                 font_size=12, bold=True, color=C_ORANGE)
+    add_text_box(slide,
+                 "Legacy TomTom-factoren hadden dinsdag als drukste dag. "
+                 "Echte Infrabel-data toont maandag + donderdag als drukste, woensdag als rustigst.",
+                 Inches(0.65), Inches(5.75), Inches(4.5), Inches(1.0),
+                 font_size=12, color=C_WHITE)
+
+    # right: calibration diagnostic plot
+    p = img_dir / "plot_factor_calibration.png"
+    if p.exists():
+        add_image(slide, p, Inches(5.45), Inches(1.2), Inches(7.55), Inches(5.8))
+
+
 def slide_auto_trein(prs, img_dir):
     """Slide 11 — Auto vs Trein vergelijking"""
     slide = prs.slides.add_slide(prs.slide_layouts[6])
@@ -570,27 +607,31 @@ def slide_auto_trein(prs, img_dir):
     if p.exists():
         add_image(slide, p, Inches(0.45), Inches(1.2), Inches(8.5), Inches(5.6))
 
-    # right: weekday factors
+    # right: weekday factors (calibrated from real Infrabel + VC data)
     panel_box(slide, Inches(9.1), Inches(1.2), Inches(4.0), Inches(5.6))
-    add_text_box(slide, "WEEKDAG FACTORS (E40-corridor)",
+    add_text_box(slide, "WEEKDAG FACTORS (Infrabel historische data)",
                  Inches(9.3), Inches(1.35), Inches(3.7), Inches(0.4),
                  font_size=11, bold=True, color=C_TEAL)
     wd = [
-        ("Maandag",   "×1.28", "opbouw na weekend"),
-        ("Dinsdag",   "×1.35", "DRUKSTE dag"),
-        ("Woensdag",  "×1.20", "rustigst"),
-        ("Donderdag", "×1.33", "2e drukste"),
-        ("Vrijdag",   "×1.15", "lichte ochtend"),
+        ("Maandag",   "×1.12", "DRUKSTE dag"),
+        ("Dinsdag",   "×0.98", "licht verkeer"),
+        ("Woensdag",  "×0.87", "RUSTIGST"),
+        ("Donderdag", "×1.11", "2e drukste"),
+        ("Vrijdag",   "×0.92", "lichte ochtend"),
     ]
     for i, (day, factor, note) in enumerate(wd):
         top_i = Inches(1.85 + i * 0.9)
-        color = C_ORANGE if "DRUK" in note else (C_TEAL if "rustig" in note else C_WHITE)
+        color = C_ORANGE if "DRUK" in note else (C_TEAL if "RUSTIG" in note else C_WHITE)
         add_text_box(slide, day,   Inches(9.3),  top_i, Inches(1.5), Inches(0.38),
                      font_size=13, bold=True, color=color)
         add_text_box(slide, factor, Inches(10.85), top_i, Inches(0.8), Inches(0.38),
                      font_size=13, bold=True, color=C_ORANGE)
         add_text_box(slide, note,  Inches(11.7),  top_i, Inches(1.2), Inches(0.38),
                      font_size=11, color=C_MUTED)
+    add_text_box(slide,
+                 "Factor t.o.v. vrije doorstroom (59.5 min OSRM baseline)",
+                 Inches(9.3), Inches(6.55), Inches(3.7), Inches(0.35),
+                 font_size=9, italic=True, color=C_MUTED)
 
 
 def slide_heatmap(prs, img_dir):
@@ -851,10 +892,10 @@ def slide_inzichten(prs):
     heading(slide, "Sleutelinzichten")
 
     insights = [
-        (C_ORANGE, "Di & do = slechtste dagen voor autorijden",
-         "35% en 33% boven vrije doorstroomtijd — menselijk rijgedrag, niet het weer."),
-        (C_TEAL,   "Sneeuw heeft buitensporige impact",
-         "+25% reistijd — België heeft beperkte sneeuwruimcapaciteit buiten steden."),
+        (C_ORANGE, "Ma & do = slechtste dagen voor autorijden",
+         "~18% en ~17% boven vrije doorstroomtijd (Infrabel) — menselijk rijgedrag, niet het weer."),
+        (C_TEAL,   "Zware regen: de grootste weerimpact op autoverkeer",
+         "+12% reistijd bij piekintensiteit ≥ 5 mm/u — lichte regen en rijp slechts +3–4%."),
         (C_ORANGE, "Weer is NIET afhankelijk van weekdag",
          "Maandag is niet natter dan vrijdag. Verkeerspatronen = mensengedrag."),
         (RGBColor(0xA0,0x60,0xFF), "Trein is concurrentieel",
@@ -975,26 +1016,27 @@ def build():
     img_dir = Path("data/processed")
 
     print("Building slides …")
-    slide_title(prs);           print("  1/20 — Titelpagina")
-    slide_doel(prs);            print("  2/20 — Projectdoel")
-    slide_team(prs);            print("  3/20 — Team & Tijdlijn")
-    slide_databronnen(prs);     print("  4/20 — Databronnen overzicht")
-    slide_weer(prs, img_dir);   print("  5/20 — Weerdata")
-    slide_pendel_weer(prs, img_dir); print("  6/20 — Weerpatroon pendel")
-    slide_kalender(prs, img_dir);    print("  7/20 — Kalender")
-    slide_infrabel(prs, img_dir);    print("  8/20 — Infrabel treindata")
-    slide_infrabel_weekdag(prs, img_dir); print("  9/20 — Trein per weekdag")
-    slide_auto(prs, img_dir);   print(" 10/20 — Autodata")
-    slide_auto_trein(prs, img_dir);  print(" 11/20 — Auto vs Trein")
-    slide_heatmap(prs, img_dir); print(" 12/20 — Weerrisico heatmap")
-    slide_pipeline(prs);         print(" 13/20 — Data pipeline")
-    slide_ml(prs);               print(" 14/20 — ML aanpak")
-    slide_features(prs);         print(" 15/20 — Features")
-    slide_evaluatie(prs, img_dir); print(" 16/20 — Modelresultaten")
-    slide_scenarios(prs, img_dir); print(" 17/20 — 50 scenarios")
-    slide_inzichten(prs);         print(" 18/20 — Sleutelinzichten")
-    slide_demo(prs);              print(" 19/20 — Live demo")
-    slide_conclusie(prs);         print(" 20/20 — Conclusie")
+    slide_title(prs);                    print("  1/21 — Titelpagina")
+    slide_doel(prs);                     print("  2/21 — Projectdoel")
+    slide_team(prs);                     print("  3/21 — Team & Tijdlijn")
+    slide_databronnen(prs);              print("  4/21 — Databronnen overzicht")
+    slide_weer(prs, img_dir);            print("  5/21 — Weerdata")
+    slide_pendel_weer(prs, img_dir);     print("  6/21 — Weerpatroon pendel")
+    slide_kalender(prs, img_dir);        print("  7/21 — Kalender")
+    slide_infrabel(prs, img_dir);        print("  8/21 — Infrabel treindata")
+    slide_infrabel_weekdag(prs, img_dir); print("  9/21 — Trein per weekdag")
+    slide_auto(prs, img_dir);            print(" 10/21 — Autodata")
+    slide_factor_calibratie(prs, img_dir); print(" 11/21 — Factor kalibratie")
+    slide_auto_trein(prs, img_dir);      print(" 12/21 — Auto vs Trein")
+    slide_heatmap(prs, img_dir);         print(" 13/21 — Weerrisico heatmap")
+    slide_pipeline(prs);                 print(" 14/21 — Data pipeline")
+    slide_ml(prs);                       print(" 15/21 — ML aanpak")
+    slide_features(prs);                 print(" 16/21 — Features")
+    slide_evaluatie(prs, img_dir);       print(" 17/21 — Modelresultaten")
+    slide_scenarios(prs, img_dir);       print(" 18/21 — 50 scenarios")
+    slide_inzichten(prs);                print(" 19/21 — Sleutelinzichten")
+    slide_demo(prs);                     print(" 20/21 — Live demo")
+    slide_conclusie(prs);                print(" 21/21 — Conclusie")
 
     out = Path("Gent_Mechelen_Presentatie.pptx")
     prs.save(str(out))
