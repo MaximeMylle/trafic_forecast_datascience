@@ -465,9 +465,15 @@ print("=" * 65)
 #  Q2: What is the risk of arriving LATE at 09:00?
 #  Q3: How large is the typical prediction error in real minutes?
 
-# We define departure times as: arrival 09:00 minus estimated travel time
-# A buffer of 10 minutes is added to account for model uncertainty.
-BUFFER_MIN = 10
+# Departure buffer = minutes you leave early so you still arrive by 09:00.
+# Sized from the measured-residual analysis in notebook §14 (target ≈ 95% on-time):
+#   • car  : the 95th-percentile residual is ~14 min (and car_real_min is clipped at
+#            120 min, so the real bad-day tail is understated → lean to the safe side).
+#   • train: it runs close to schedule, so ~6 min already covers 95% of days.
+# The old flat 10 min was only ~90% on-time for the car and over-cautious for the train.
+CAR_BUFFER_MIN   = 14
+TRAIN_BUFFER_MIN = 6
+BUFFER_MIN       = CAR_BUFFER_MIN   # this section evaluates the CAR; kept for readability
 
 # Reconstruct a test-set DataFrame for business metrics
 df_test = df.iloc[n_train:].copy().reset_index(drop=True)

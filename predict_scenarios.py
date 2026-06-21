@@ -122,11 +122,18 @@ rf_clf.fit(X_train, yc_train)
 
 # Median scheduled train time from the dataset
 TRAIN_SCHED_MIN = float(df["train_sched_min"].iloc[0])
-BUFFER_MIN      = 10   # safety buffer added to departure time
+
+# Per-mode departure buffers, sized from the measured-residual analysis in
+# notebook §14 (target ≈ 95% on-time arrival by 09:00):
+#   • car  : ~14 min (95th-pct residual; car_real_min is clipped, so lean safe)
+#   • train: ~6 min  (it runs close to schedule)
+# A single flat 10 min was ~90% on-time for the car and over-cautious for the train.
+CAR_BUFFER_MIN   = 14
+TRAIN_BUFFER_MIN = 6
 
 print(f"Model trained on {len(X_train):,} working days.")
 print(f"Train scheduled time: {TRAIN_SCHED_MIN:.0f} min")
-print(f"Departure buffer: {BUFFER_MIN} min\n")
+print(f"Departure buffer: car {CAR_BUFFER_MIN} min / train {TRAIN_BUFFER_MIN} min\n")
 
 
 # =============================================================================
@@ -215,12 +222,12 @@ def predict_scenario(scenario: dict) -> dict:
         recommended = "trein"
         confidence  = (1 - mode_prob) * 100
 
-    # ── compute departure time ──
+    # ── compute departure time (per-mode buffer) ──
     if recommended == "auto":
-        dep_min = 9 * 60 - (car_pred + BUFFER_MIN)
+        dep_min = 9 * 60 - (car_pred + CAR_BUFFER_MIN)
         dep_str = f"{int(dep_min) // 60:02d}:{int(dep_min) % 60:02d}"
     elif recommended == "trein":
-        dep_min = 9 * 60 - (TRAIN_SCHED_MIN + BUFFER_MIN)
+        dep_min = 9 * 60 - (TRAIN_SCHED_MIN + TRAIN_BUFFER_MIN)
         dep_str = f"{int(dep_min) // 60:02d}:{int(dep_min) % 60:02d}"
     else:
         dep_str = "n.v.t."
