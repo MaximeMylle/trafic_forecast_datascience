@@ -23,6 +23,7 @@ model on fresh data, then applies it to each scenario.
 """
 
 # ─── Standard library ────────────────────────────────────────────────────────
+import os
 import subprocess
 import sys
 from datetime import date, timedelta
@@ -60,7 +61,31 @@ from data_pipeline import build_combined_df, WEEKDAY_CONGESTION, CAR_PREF_BUFFER
 
 print("Loading dataset and training model …")
 
-df = build_combined_df()
+# Optional single-year training: set COMMUTE_YEARS (e.g. COMMUTE_YEARS=2025).
+# Outputs are suffixed so the full-history scenario files are not overwritten.
+_YEARS_ENV  = os.environ.get("COMMUTE_YEARS", "").strip()
+TRAIN_YEARS = [int(y) for y in _YEARS_ENV.replace(",", " ").split()] if _YEARS_ENV else None
+SUFFIX      = f"_{'_'.join(map(str, TRAIN_YEARS))}" if TRAIN_YEARS else ""
+
+df = build_combined_df(years=TRAIN_YEARS)
+if TRAIN_YEARS:
+    print(f"[config] COMMUTE_YEARS={TRAIN_YEARS} -> model fit on {len(df):,} working days; "
+          f"outputs suffixed with '{SUFFIX}'.")
+
+# USE_REAL_CAR=1 fits the model on Marc's MEASURED car_real_min (leakage-free, 2025
+# only) instead of the synthetic car_est_min — the scenarios then reflect the
+# realistic ~train-dominant model. Outputs are suffixed so the demo files differ.
+USE_REAL_CAR = os.environ.get("USE_REAL_CAR", "").strip().lower() not in ("", "0", "false", "no")
+if USE_REAL_CAR:
+    df = df[df["date"].dt.year == 2025].dropna(subset=["car_real_min"]).reset_index(drop=True)
+    df["car_faster_than_train"] = (
+        df["car_real_min"] <= df["train_actual_journey_min"] + CAR_PREF_BUFFER_MIN
+    ).astype(int)
+    SUFFIX = "_2025_real"
+    print(f"[config] USE_REAL_CAR=1 -> scenarios use MEASURED car_real_min "
+          f"({len(df):,} days); outputs suffixed '{SUFFIX}'.")
+
+TARGET_REG = "car_real_min" if USE_REAL_CAR else "car_est_min"
 
 # Feature columns (must match exactly what model_training.py uses)
 FEATURE_COLS = [
@@ -72,7 +97,7 @@ FEATURE_COLS = [
 ]
 
 X   = df[FEATURE_COLS].values
-y_r = df["car_est_min"].values          # regression target: car travel time
+y_r = df[TARGET_REG].values             # regression target: car travel time (synthetic or measured)
 y_c = df["car_faster_than_train"].values  # classification target
 
 # Use the same 80/20 chronological split as in model_training.py.
@@ -1025,7 +1050,7 @@ fig.suptitle(
     fontsize=13, fontweight="bold"
 )
 
-out_path = "data/processed/scenario_predictions.png"
+out_path = f"data/processed/scenario_predictions{SUFFIX}.png"
 plt.savefig(out_path, bbox_inches="tight", dpi=130)
 print(f"\nPlot opgeslagen: {out_path}")
 plt.show()
@@ -1045,8 +1070,9 @@ csv_cols = [
 # train_sched_min is not in the original dicts, add it
 df_results["train_sched_min"] = TRAIN_SCHED_MIN
 
-df_results[csv_cols].to_csv("data/processed/scenario_predictions.csv", index=False)
-print("CSV opgeslagen: data/processed/scenario_predictions.csv")
+_scenarios_csv = f"data/processed/scenario_predictions{SUFFIX}.csv"
+df_results[csv_cols].to_csv(_scenarios_csv, index=False)
+print(f"CSV opgeslagen: {_scenarios_csv}")
 
 # ── Final summary ────────────────────────────────────────────────────────────
 print("\n" + "=" * 65)

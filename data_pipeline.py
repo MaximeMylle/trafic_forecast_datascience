@@ -21,6 +21,7 @@ Data sources
 
 # ─── Standard-library imports ────────────────────────────────────────────────
 import json
+import os
 import subprocess
 import sys
 from datetime import date, datetime, timedelta
@@ -921,9 +922,75 @@ def fetch_infrabel_punctuality(
 # MAIN PIPELINE — combines all sources into one DataFrame
 # =============================================================================
 
+def _resolve_years(years) -> "list[int] | None":
+    """Resolve the year filter from an explicit arg or the COMMUTE_YEARS env var.
+
+    COMMUTE_YEARS may be a comma/space separated list, e.g. "2025" or "2024,2025".
+    Returns None (no filtering) when nothing is set.
+    """
+    if years is None:
+        env = os.environ.get("COMMUTE_YEARS", "").strip()
+        if env:
+            years = [int(y) for y in env.replace(",", " ").split()]
+    if years:
+        return [int(y) for y in years]
+    return None
+
+
+# Marc's measured car travel times (real AWV traffic → Gent→Mechelen minutes),
+# 2025 only. This is the leakage-free regression target (see model_training.py
+# USE_REAL_CAR).  Loaded from the side project; NaN for any date not covered.
+_REAL_CAR_CANDIDATES = [
+    Path("side_projects/traject_calc_car/data/processed/traffic_car/reistijd_gent_mechelen_2025.csv"),
+    Path(__file__).parent / "side_projects/traject_calc_car/data/processed/traffic_car/reistijd_gent_mechelen_2025.csv",
+]
+
+
+def _attach_real_car(df: pd.DataFrame) -> pd.DataFrame:
+    """Add measured columns `car_real_min` and `traffic_volume` (NaN where absent).
+
+    `car_real_min` is built from real AWV induction-loop counts, so — unlike the
+    synthetic `car_est_min` / `car_vc_est_min` — it is NOT a function of the model's
+    weather/calendar features.  That makes it the honest, leakage-free target.
+    """
+    if "car_real_min" in df.columns:
+        return df
+    path = next((p for p in _REAL_CAR_CANDIDATES if p.exists()), None)
+    if path is None:
+        df["car_real_min"]   = np.nan
+        df["traffic_volume"] = np.nan
+        return df
+    marc = pd.read_csv(path, sep=";")
+    marc["date"] = pd.to_datetime(marc["datum"])
+    marc = marc.rename(columns={"reistijd_gm_min": "car_real_min",
+                                "drukte_voertuigen": "traffic_volume"})
+    out = df.merge(marc[["date", "car_real_min", "traffic_volume"]], on="date", how="left")
+    n = int(out["car_real_min"].notna().sum())
+    print(f"[real_car] Attached measured car times for {n:,} day(s) from {path.name}")
+    return out
+
+
+def _filter_years(df: pd.DataFrame, years: "list[int] | None") -> pd.DataFrame:
+    """Restrict the combined dataframe to the requested year(s), if any.
+
+    The full dataset is still what gets cached to disk; only the returned
+    (in-memory) frame is narrowed, so downstream scripts can train on a single
+    year without destroying the multi-year cache.
+    """
+    if not years:
+        return df
+    out = df[df["date"].dt.year.isin(years)].reset_index(drop=True)
+    if out.empty:
+        raise ValueError(f"No working days found for years {years} in the dataset.")
+    print(f"[pipeline] Year filter {years} -> {len(out):,} working days "
+          f"({out['date'].min().date()} to {out['date'].max().date()})")
+    return out
+
+
 def build_combined_df(
     force_refresh: bool = False,
     output_path: Path   = None,
+    years=None,
 ) -> pd.DataFrame:
     """
     Fetch (or load from cache) all data sources and merge them into a single
@@ -957,6 +1024,8 @@ def build_combined_df(
     """
     _ensure_dirs()
 
+    years = _resolve_years(years)
+
     if output_path is None:
         output_path = PROC / "combined_workdays_features.csv"
 
@@ -966,7 +1035,7 @@ def build_combined_df(
         print(f"[pipeline] Loading combined dataset from cache: {output_path}")
         df = pd.read_csv(output_path, parse_dates=["date"])
         print(f"[pipeline] {len(df):,} working days loaded.")
-        return df
+        return _filter_years(_attach_real_car(df), years)
 
     print("[pipeline] Building combined dataset from scratch …\n")
 
@@ -1171,12 +1240,12 @@ def build_combined_df(
     ]
     df = df[col_order].reset_index(drop=True)
 
-    df.to_csv(output_path, index=False)
+    df.to_csv(output_path, index=False)   # always cache the FULL multi-year dataset
     print(f"\n[pipeline] Combined dataset saved to {output_path}")
     print(f"[pipeline] Shape: {df.shape}  "
           f"({df['date'].min().date()} to {df['date'].max().date()})")
 
-    return df
+    return _filter_years(_attach_real_car(df), years)
 
 
 # =============================================================================

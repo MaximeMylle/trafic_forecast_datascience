@@ -20,6 +20,7 @@ Requirements (install once):
 """
 
 # ─── Standard-library imports ────────────────────────────────────────────────
+import os
 import subprocess
 import sys
 import warnings
@@ -57,7 +58,7 @@ from sklearn.metrics import (
 # ─── Import our own data pipeline ────────────────────────────────────────────
 # data_pipeline.py must be in the same folder as this file.
 # build_combined_df() returns the ready-made DataFrame (or loads it from cache).
-from data_pipeline import build_combined_df
+from data_pipeline import build_combined_df, CAR_PREF_BUFFER_MIN
 
 
 # =============================================================================
@@ -71,7 +72,43 @@ print("=" * 65)
 # build_combined_df() checks whether the processed CSV already exists on disk.
 # If yes, it simply reads it (fast).
 # If not, it fetches data from all APIs and saves it.
-df = build_combined_df()
+#
+# Optional single-year (or multi-year) training: set the COMMUTE_YEARS env var,
+# e.g.  COMMUTE_YEARS=2025  python model_training.py
+# When set, the dataset is restricted to those years and all output files get a
+# matching suffix so the full-history results are never overwritten.
+_YEARS_ENV  = os.environ.get("COMMUTE_YEARS", "").strip()
+TRAIN_YEARS = [int(y) for y in _YEARS_ENV.replace(",", " ").split()] if _YEARS_ENV else None
+SUFFIX      = f"_{'_'.join(map(str, TRAIN_YEARS))}" if TRAIN_YEARS else ""
+
+df = build_combined_df(years=TRAIN_YEARS)
+if TRAIN_YEARS:
+    print(f"\n[config] COMMUTE_YEARS={TRAIN_YEARS} -> training on {len(df):,} working days only; "
+          f"outputs suffixed with '{SUFFIX}'.")
+
+# ── USE_REAL_CAR: fix the target-leakage by training on MEASURED car times ────
+# The default target (car_est_min) is a deterministic formula of the features, so
+# the model can only re-learn that formula (fake high R²).  Setting USE_REAL_CAR=1
+# swaps the regression target to Marc's measured car_real_min — which the features
+# did NOT generate — giving an honest (and far more humbling) evaluation.
+# Measured data exists only for 2025, so this run is forced to that year.
+USE_REAL_CAR = os.environ.get("USE_REAL_CAR", "").strip().lower() not in ("", "0", "false", "no")
+
+if USE_REAL_CAR:
+    df = df[df["date"].dt.year == 2025].copy()
+    n_before = len(df)
+    df = df.dropna(subset=["car_real_min"]).reset_index(drop=True)
+    # Recompute the binary mode target from REAL car vs REAL train time (not synthetic).
+    df["car_faster_than_train"] = (
+        df["car_real_min"] <= df["train_actual_journey_min"] + CAR_PREF_BUFFER_MIN
+    ).astype(int)
+    SUFFIX = "_2025_real"
+    print(f"\n[config] USE_REAL_CAR=1 -> regression target = car_real_min (MEASURED, leakage-free).")
+    print(f"[config]   {len(df):,}/{n_before} 2025 working days have measured car data; "
+          f"outputs suffixed '{SUFFIX}'.")
+
+# Regression target: synthetic OSRM estimate by default, measured car time when fixing leakage.
+TARGET_REGRESSION = "car_real_min" if USE_REAL_CAR else "car_est_min"
 
 print(f"\nDataset loaded: {df.shape[0]:,} working days  "
       f"({df['date'].min().date()} → {df['date'].max().date()})")
@@ -124,10 +161,11 @@ FEATURE_COLS = [
 # TARGETS (= what we want to predict)
 # ------------------------------------
 # We train two separate models:
-#   - Regression:     predict car_est_min  (continuous, in minutes)
+#   - Regression:     predict the car travel time (synthetic car_est_min, or the
+#                     measured car_real_min when USE_REAL_CAR=1 — set above)
 #   - Classification: predict car_faster_than_train (binary: 1 or 0)
 
-TARGET_REGRESSION      = "car_est_min"
+# TARGET_REGRESSION is set above (depends on USE_REAL_CAR); do not overwrite it here.
 TARGET_CLASSIFICATION  = "car_faster_than_train"
 
 # Extract feature matrix X and both target vectors
@@ -389,13 +427,19 @@ if len(rfc_model.classes_) == 1:
           f"consider a different classification target (e.g. 'high_delay_risk').")
 else:
     print("\nDetailed classification report:")
+    # labels=classes_ + zero_division=0 keep this robust when the (chronological)
+    # TEST set happens to contain only one class — which is exactly what occurs on
+    # a single-year run, where the late-2025 test slice is "car faster" on every day.
     print(classification_report(
         yc_test, yc_pred,
+        labels=rfc_model.classes_,
         target_names=["Train faster", "Car faster"],
+        zero_division=0,
     ))
 
-# Confusion matrix: safe version that handles 1×1 and 2×2 outcomes
-cm = confusion_matrix(yc_test, yc_pred)
+# Confusion matrix: safe version that handles 1×1 and 2×2 outcomes.
+# Pass the known label set so it stays 2×2 even when the test slice is one class.
+cm = confusion_matrix(yc_test, yc_pred, labels=rfc_model.classes_)
 print("Confusion matrix (rows=actual, cols=predicted):")
 if cm.shape == (2, 2):
     print(f"               Pred:Train  Pred:Car")
@@ -432,8 +476,8 @@ df_test["car_pred_lr"]   = yr_pred_lr
 df_test["mode_pred_rfc"] = yc_pred     # 1=car predicted faster, 0=train
 
 # Required departure time to arrive at 09:00
-df_test["car_dep_rf"]   = 9*60 - (df_test["car_pred_rf"]  + BUFFER_MIN)
-df_test["car_dep_true"] = 9*60 - (df_test["car_est_min"]  + BUFFER_MIN)
+df_test["car_dep_rf"]   = 9*60 - (df_test["car_pred_rf"]      + BUFFER_MIN)
+df_test["car_dep_true"] = 9*60 - (df_test[TARGET_REGRESSION]  + BUFFER_MIN)
 
 # On how many test days did both models agree on transport mode?
 both_agree = (
@@ -451,12 +495,12 @@ print(f"  Train scheduled time             : {df_test['train_sched_min'].iloc[0]
 
 # How often would following the model's advice lead to arriving late?
 # (i.e. actual travel time > predicted + buffer)
-late_risk = ((df_test["car_est_min"] > yr_pred_rf + BUFFER_MIN)).mean()
+late_risk = ((df_test[TARGET_REGRESSION] > yr_pred_rf + BUFFER_MIN)).mean()
 print(f"  Risk of arriving late (RF model) : {late_risk:.1%}")
 
 # Average buffer remaining at 09:00 if prediction is correct
 df_test["buffer_remaining"] = (
-    (df_test["car_pred_rf"] + BUFFER_MIN) - df_test["car_est_min"]
+    (df_test["car_pred_rf"] + BUFFER_MIN) - df_test[TARGET_REGRESSION]
 )
 print(f"  Avg buffer remaining at 09:00    : {df_test['buffer_remaining'].mean():.1f} min")
 
@@ -616,7 +660,7 @@ ax_e.set_title("RF prediction error by weekday\n(lower = more accurate)")
 fig.suptitle("Model Evaluation — Gent → Mechelen Commute Prediction",
              fontsize=14, fontweight="bold", y=1.01)
 
-out_plot = Path("data/processed/model_evaluation.png")
+out_plot = Path(f"data/processed/model_evaluation{SUFFIX}.png")
 plt.savefig(out_plot, bbox_inches="tight", dpi=130)
 print(f"Evaluation plots saved to: {out_plot}")
 plt.show()
@@ -630,7 +674,7 @@ print("\n" + "=" * 65)
 print("STEP 10 — Saving results summary")
 print("=" * 65)
 
-results_path = Path("data/processed/model_results_summary.csv")
+results_path = Path(f"data/processed/model_results_summary{SUFFIX}.csv")
 results = pd.DataFrame([
     {
         "model":           "Linear Regression",
