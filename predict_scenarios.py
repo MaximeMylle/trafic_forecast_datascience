@@ -211,8 +211,12 @@ def predict_scenario(scenario: dict) -> dict:
 
     # ── decide recommended mode ──
     risk = features["weather_risk"]
-    if risk >= 5 and min(car_pred, TRAIN_SCHED_MIN) >= 90:
-        # extreme conditions AND both modes are very slow → work from home
+    # WFH (safety) rule: on severe weather BOTH road and rail are unreliable —
+    # heavy snow paralyses the roads AND drives train delays/cancellations; storms
+    # disrupt both. So recommend working from home regardless of the fair-weather
+    # scheduled times. (Deliberate safety rule, not a data-optimum: the old rule
+    # required the ~58-min train to be ≥90 min, so WFH could never fire.)
+    if risk >= 5 or features["snow_total"] >= 3.0:
         recommended = "thuiswerken"
         confidence  = 90.0
     elif mode_bin == 1:
