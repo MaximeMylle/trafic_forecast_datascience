@@ -1,0 +1,19 @@
+Example commands (good for the demo)
+
+# 1) Natte dinsdagspits → TREIN  (auto ~95 min vs trein 58)
+python predict_one.py --weekday di --month 11 --rain 5 --wind 30 --temp 6
+
+# 2) Sneeuwdag in januari → THUISWERKEN  (zwaar weer: weg én spoor onbetrouwbaar)
+python predict_one.py --weekday do --month 1 --snow 8 --temp -3
+
+# 3) Feestdag → THUISWERKEN  (geen pendel)
+python predict_one.py --feestdag
+
+# 4) Rustige lentevrijdag → TREIN
+python predict_one.py --weekday vr --month 5 --rain 0 --wind 8 --temp 16
+
+# 5) ZELFDE dag, oud model → AUTO  (toont live het leakage-effect!)
+python predict_one.py --synthetic --weekday vr --month 5 --rain 0 --wind 8 --temp 16
+
+# alle opties
+python predict_one.py --help
