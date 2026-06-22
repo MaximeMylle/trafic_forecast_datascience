@@ -124,6 +124,41 @@ def image_slide(kick, ttl, img, take):
     return s
 
 
+def detail_slide(kick, ttl, bullets, img):
+    """Data-source detail: bullets on the left, a graph on the right."""
+    s = slide(); kicker(s, kick); title(s, ttl)
+    tf = textbox(s, LEFT, Inches(2.15), Inches(4.75), Inches(4.8))
+    first = True
+    for b in bullets:
+        if isinstance(b, tuple):   # (head, desc)
+            para(tf, b[0], 15, INK, bold=True, first=first, space_after=2, space_before=(0 if first else 9))
+            para(tf, b[1], 13.5, GREY, line=1.16, space_after=0)
+        else:
+            para(tf, [("›  ", ACCENT, False), (b, INK, False)], 14.5, INK, first=first, space_after=9, line=1.16)
+        first = False
+    fit_image(s, FIG / img, Inches(5.85), Inches(2.05), Inches(6.55), Inches(4.75))
+    footer(s)
+    return s
+
+
+def model_slide(step, name, role, bullets, analogy):
+    """One ML model explained simply, with a 'Model N van 3' step marker."""
+    s = slide(); kicker(s, f"Aanpak · model {step} van 3")
+    title(s, f"Model {step} — {name}")
+    para(textbox(s, LEFT, Inches(2.00), CW, Inches(0.5)), role, 18, ACCENT, bold=True,
+         font=SERIF, first=True, space_after=0)
+    tf = textbox(s, LEFT, Inches(2.78), Inches(11.4), Inches(3.5))
+    first = True
+    for b in bullets:
+        para(tf, [("›  ", ACCENT, False), (b, INK, False)], 16, INK, first=first, space_after=11, line=1.18)
+        first = False
+    rule(s, LEFT, Inches(6.32), CW, HAIR, h=Pt(1))
+    para(textbox(s, LEFT, Inches(6.46), CW, Inches(0.5)),
+         [("Simpel beeld:  ", INK, True), (analogy, GREY, False)], 14.5, GREY, first=True, space_after=0)
+    footer(s)
+    return s
+
+
 # ── 1 · TITLE ────────────────────────────────────────────────────────────────
 s = slide()
 rule(s, LEFT, Inches(2.35), Inches(2.4))
@@ -175,6 +210,100 @@ tf = textbox(s, LEFT, Inches(y + 0.18), CW, Inches(0.5))
 para(tf, [("build_combined_df()", ACCENT, True),
           ("  →  combined_workdays_features.csv", GREY, False)], 14, GREY, first=True, space_after=0)
 footer(s)
+
+# ── DATABRONNEN IN DETAIL ─────────────────────────────────────────────────────
+detail_slide("Databron · Weer", "Weerdata — Open-Meteo",
+    ["Gratis API · uurlijks · terug tot 1940",
+     "Locatie Mechelen · venster 06:00–09:00 (pendeltijd)",
+     "Variabelen: regen, wind, temperatuur, sneeuw, vocht",
+     "Inzicht: natst in herfst & winter",
+     "Inzicht: weer is gelijk over álle weekdagen → files zijn menselijk gedrag"],
+    "plot_weather_overview.png")
+
+detail_slide("Databron · Kalender", "Belgische werkdagen — holidays",
+    ["2021–2028 (ook toekomst, voor forecasts)",
+     "is_workday: ma–vr én geen feestdag",
+     "Schoolvakanties & brugdagen apart gemarkeerd",
+     "Seizoen (meteorologisch)",
+     "Inzicht: mei heeft de meeste feestdagen"],
+    "plot_calendar_overview.png")
+
+detail_slide("Databron · Trein", "Echte vs. geplande treindata",
+    [("Infrabel — echt", "werkelijke aankomst/vertrek per trein, per dag (2021–2026)"),
+     ("iRail — schema", "dienstregeling, enkel als fallback"),
+     "Waarom Infrabel? iRail heeft géén meerjarige vertraginghistorie",
+     "Per dag: reistijd, vertraging, % op tijd, % geannuleerd"],
+    "plot_infrabel_overview.png")
+
+detail_slide("Databron · Auto", "Van verkeersvolume naar reistijd",
+    ["AWV-lussen tellen auto's per kwartier (spits 07:00–08:30)",
+     "Meer auto's nabij de flessenhals (Kennedytunnel) → langere reistijd",
+     "BPR-model: reistijd stijgt niet-lineair met het volume",
+     "Geklemd op 60–120 min (modelbenadering, geen GPS-meting)",
+     "OSRM = vrije doorstroom (referentie) · VC = maandgemiddelde"],
+    "plot_v2_volume_to_time.png")
+
+# ── ML-AANPAK · OVERZICHT (volgorde van de 3 modellen) ────────────────────────
+s = slide(); kicker(s, "Aanpak · de modellen"); title(s, "Drie modellen — in volgorde")
+ym = 2.55
+for num, name, role in [
+        ("1", "Lineaire Regressie", "de ijklijn — een eenvoudig vertrekpunt"),
+        ("2", "Random Forest Regressor", "het hoofdmodel — schat de reistijd (minuten)"),
+        ("3", "Random Forest Classifier", "de beslissing — auto of trein?")]:
+    para(textbox(s, LEFT, Inches(ym - 0.18), Inches(0.85), Inches(0.95)), num, 40, ACCENT,
+         font=SERIF, first=True, space_after=0)
+    tf = textbox(s, Inches(1.8), Inches(ym), Inches(10.4), Inches(0.95))
+    para(tf, name, 20, INK, bold=True, font=SERIF, first=True, space_after=1)
+    para(tf, role, 14.5, GREY, space_after=0)
+    ym += 1.25
+para(textbox(s, LEFT, Inches(6.55), CW, Inches(0.5)),
+     "Van eenvoudig ijkpunt → slim model → concreet advies.", 15, ACCENT, bold=True, first=True, space_after=0)
+footer(s)
+
+# ── ML-AANPAK · MODEL 1, 2, 3 (elk apart, simpel uitgelegd) ───────────────────
+model_slide(1, "Lineaire Regressie", "De ijklijn (baseline)",
+    ["Trekt één rechte lijn door de data — elke factor krijgt één vast gewicht.",
+     "'Meer regen → iets meer reistijd', en zo voor elke factor.",
+     "Waarom eerst? Als ijkpunt: een slimmer model moet dit kunnen verslaan.",
+     "Bonus: je ziet meteen welke factor de reistijd omhoog of omlaag duwt."],
+    "zoals een rechte trendlijn in Excel.")
+
+model_slide(2, "Random Forest Regressor", "Het hoofdmodel — schat de reistijd in minuten",
+    ["Bouwt honderden 'beslisbomen' vol ja/nee-vragen (Is het maandag? Regent het? Vakantie?).",
+     "Neemt het gemiddelde van alle bomen → één geschatte reistijd.",
+     "Waarom? De realiteit is niet recht: regen + vorst = ijzel is erger dan elk apart — bomen vangen zulke combinaties.",
+     "Verklapt ook welke factoren het zwaarst wegen (zie 'belangrijkste features')."],
+    "vraag 300 experts en neem hun gemiddelde antwoord.")
+
+model_slide(3, "Random Forest Classifier", "De beslissing — auto of trein?",
+    ["Zelfde bomen-techniek, maar geeft geen getal — een keuze.",
+     "Output: auto of trein, met een zekerheids-%.",
+     "Waarom? De pendelaar wil geen minuten, maar een concreet advies.",
+     "Thuiswerken komt er als veiligheidsregel bovenop bij zwaar weer (sneeuw/storm)."],
+    "een stemming onder de 300 bomen — de meerderheid beslist.")
+
+# ── ML-AANPAK · TRAINING ──────────────────────────────────────────────────────
+s = slide(); kicker(s, "Aanpak · training"); title(s, "Hoe trainen we het model?")
+ym = 2.2
+for head, body in [
+        ("15 features", "weer (06–09h venster) + kalender — allemaal de avond vóór de rit bekend"),
+        ("Twee doelen", "reistijd in minuten (regressie)  ·  auto sneller dan trein? (classificatie)"),
+        ("Train/test split", "80% / 20% chronologisch — géén shuffle (tijdreeks mag de toekomst niet 'zien')"),
+        ("Formule of niet?", "het model is géén formule — het leert uit data. Maar ons éérste doel "
+                             "(car_est_min = OSRM × weekdag × weer) wás een formule → leakage (Les 1). "
+                             "De eerlijke versie traint op gemeten car_real_min.")]:
+    rule(s, LEFT, Inches(ym + 0.05), Inches(0.18), ACCENT, h=Pt(15))
+    tf = textbox(s, Inches(1.25), Inches(ym - 0.06), Inches(11.0), Inches(1.1))
+    para(tf, head, 16, INK, bold=True, font=SERIF, first=True, space_after=2, line=1.05)
+    para(tf, body, 14, GREY, line=1.18, space_after=0)
+    ym += 1.12
+footer(s)
+
+# ── · SYNTHETISCH AUTOMODEL (weekdag- & weerfactoren) ─────────────────────────
+image_slide("Aanpak · auto-schatting", "Reistijd × weekdag × weer",
+            "plot_v2_car_factors.png",
+            [("Drukkere weekdagen (ma & do) en slecht weer verlengen de geschatte reistijd. ", INK, True),
+             ("Zo bouwden we de eerste (synthetische) auto-schatting op — zie Les 1.", GREY, False)])
 
 # ── 4 · LES 1 — LEAKAGE ──────────────────────────────────────────────────────
 s = slide(); kicker(s, "Les 1 — de valkuil"); title(s, "Een R² van 0,99 was geen succes")
@@ -241,7 +370,13 @@ image_slide("Les 3 — eerlijk model", "Met echte data: eerlijk maar bescheiden"
 image_slide("Wat telt écht", "Kalender vóór weer",
             "plot_v2_holiday_gradient.png",
             [("Feestdag 60 · brugdag 81 · schoolvakantie 90 · gewone dag 96 min. ", INK, True),
-             ("'is_public_holiday' is de #1 feature; weer is zwak.", GREY, False)])
+             ("Hoe rustiger de dag, hoe sneller — weer speelt nauwelijks mee.", GREY, False)])
+
+# ── · BELANGRIJKSTE FEATURES ──────────────────────────────────────────────────
+image_slide("Belangrijkste features", "Wat weegt het zwaarst volgens het model?",
+            "plot_v2_holiday_model.png",
+            [("is_public_holiday is veruit de #1 voorspeller. ", INK, True),
+             ("De 3 kalendervlaggen samen wegen even zwaar als álle 7 weerfeatures.", GREY, False)])
 
 # ── 9 · BUFFER ───────────────────────────────────────────────────────────────
 image_slide("Betrouwbaarheid", "Hoeveel buffer is realistisch?",
